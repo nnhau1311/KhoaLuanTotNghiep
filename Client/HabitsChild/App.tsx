@@ -1,36 +1,42 @@
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { BottomBar } from './src/components/bottomBar';
+import { StatusBar } from 'react-native';
 import { MainRoutes, MainStack } from './src/routes/routes';
 import Login from './src/screens/login/Login';
-import Module1 from './src/screens/module1/Module1';
-import Module2 from './src/screens/module2/Module2';
+import Splash from './src/screens/splash/Splash';
+import SignUp from './src/screens/login/SignUp';
+import ForgotPass from './src/screens/login/ForgotPass';
+import TabNavigation from './src/screens/navigation/TabNavigation';
+import ViewCourse from './src/screens/course/ViewCourse';
+import HaibitDetail from './src/screens/home/HabitDetail';
+import { COLOR } from './src/constants';
 
 const App = () => {
   return (
     // <AuthContext.Provider>
     <NavigationContainer>
-      <MainStack.Navigator initialRouteName={MainRoutes.Login}>
+      <StatusBar animated={true} backgroundColor={COLOR.bg} hidden={true} />
+      <MainStack.Navigator initialRouteName={MainRoutes.TabNavigation}>
         <>
           <MainStack.Screen
-            name={MainRoutes.BottomBar}
-            component={BottomBar}
+            name={MainRoutes.Splash}
+            component={Splash}
             options={{
               headerShown: false,
               animation: 'slide_from_right',
             }}
           />
           <MainStack.Screen
-            name={MainRoutes.Module1}
-            component={Module1}
+            name={MainRoutes.SignUp}
+            component={SignUp}
             options={{
               headerShown: false,
               animation: 'slide_from_right',
             }}
           />
           <MainStack.Screen
-            name={MainRoutes.Module2}
-            component={Module2}
+            name={MainRoutes.ForgotPass}
+            component={ForgotPass}
             options={{
               headerShown: false,
               animation: 'slide_from_right',
@@ -39,6 +45,31 @@ const App = () => {
           <MainStack.Screen
             name={MainRoutes.Login}
             component={Login}
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          />
+          <MainStack.Screen
+            name={MainRoutes.TabNavigation}
+            component={TabNavigation}
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          />
+
+          <MainStack.Screen
+            name={MainRoutes.ViewCourse}
+            component={ViewCourse}
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          />
+          <MainStack.Screen
+            name={MainRoutes.HaibitDetail}
+            component={HaibitDetail}
             options={{
               headerShown: false,
               animation: 'slide_from_right',

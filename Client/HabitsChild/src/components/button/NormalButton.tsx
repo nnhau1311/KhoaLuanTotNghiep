@@ -6,14 +6,20 @@ interface NormalButtonProps {
   label: string;
   style: Object;
   onPress: Function;
+  labelStyle: any;
 }
 
-export const NormalButton = ({ label, style, onPress }: NormalButtonProps) => {
+export const NormalButton = ({
+  label,
+  style,
+  onPress,
+  labelStyle,
+}: NormalButtonProps) => {
   return (
     <TouchableOpacity
       style={[styles.container, style]}
       onPress={() => onPress()}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
     </TouchableOpacity>
   );
 };
