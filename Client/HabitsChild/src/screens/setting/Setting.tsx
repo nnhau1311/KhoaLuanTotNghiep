@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -10,13 +11,34 @@ import {
   ScrollView,
   Switch,
   ViewStyle,
+  Alert,
+  Platform,
+  NativeModules,
+  Linking,
 } from 'react-native';
+import TouchID from 'react-native-touch-id';
 import BackgroundApp from '../../components/background/BackgroundApp';
 import Header from '../../components/header/Header';
-import { COLOR } from '../../constants';
+import { userData } from '../../configs';
+import { COLOR, stringIsEmpty } from '../../constants';
 import { IMAGE } from '../../constants/Image';
+import { useAppDispatch } from '../../hooks';
 import { MainNavigationProp } from '../../routes/type';
+import { CommonActions } from '@react-navigation/native';
+import { logoutAction } from '../../redux/reducer/userReducer';
+const optionalConfigObject = {
+  unifiedErrors: false,
+  passcodeFallback: false, // if true is passed, itwill allow isSupported to return an error if the device is not enrolled in touch id/face id etc. Otherwise, it will just tell you what method is supported, even if the user is not enrolled.  (default false)
+};
 
+const fingerConig = {
+  title: 'Xác thực vân tay',
+  imageColor: COLOR.purple,
+  imageErrorColor: COLOR.red,
+  sensorDescription: 'Chạm vào cảm biến',
+  sensorErrorDescription: 'Vân tay không đúng',
+  cancelText: 'Hủy bỏ',
+};
 interface SettingProps {}
 interface ItemButtonProps {
   title: string;
@@ -24,6 +46,7 @@ interface ItemButtonProps {
   switcher: boolean;
   style: ViewStyle;
   arrow: boolean;
+  onPress: Function;
 }
 const ItemButton = ({
   title,
@@ -31,11 +54,193 @@ const ItemButton = ({
   switcher,
   style,
   arrow,
+  onPress,
 }: ItemButtonProps) => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(!isEnabled);
+  const [isOnBiometrics, setBiometrics] = useState<boolean>(false);
+  const toggleSwitch = () => setBiometrics(!isOnBiometrics);
+  const checkBioMetrics = async () => {
+    let BioValue = false;
+
+    try {
+      const value = await AsyncStorage.getItem('BIO');
+      const bioAccount = {
+        username: await AsyncStorage.getItem('Bio_username'),
+        password: await AsyncStorage.getItem('Bio_password'),
+      };
+      const currentAccount = {
+        username: await AsyncStorage.getItem('username'),
+        password: await AsyncStorage.getItem('password'),
+      };
+      console.log('1111111111111111', value === 'true', value);
+      console.log(
+        '2222222222222222',
+        bioAccount.username == currentAccount.username,
+        bioAccount.username,
+        currentAccount.username,
+      );
+      console.log(
+        '3333333333333333',
+        bioAccount.password == currentAccount.password,
+        bioAccount.password,
+        currentAccount.password,
+      );
+
+      if (value !== null) {
+        return (BioValue =
+          value === 'true' &&
+          bioAccount.username == currentAccount.username &&
+          bioAccount.password == currentAccount.password
+            ? true
+            : false);
+      }
+      return BioValue;
+    } catch (e) {}
+    return BioValue;
+  };
+  useEffect(() => {
+    async function checkBio(): Promise<void> {
+      let check = await checkBioMetrics();
+
+      setBiometrics(check);
+    }
+    checkBio();
+  }, [isOnBiometrics]);
+  const checkBioSupport = async () => {
+    console.log('NNNNNNNNN');
+    return TouchID.isSupported(optionalConfigObject)
+      .then(biometryType => {
+        // Success code
+        userData.BIOMETRICS = biometryType;
+        if (biometryType === 'FaceID') {
+          console.log('FaceID is supported.');
+          return true;
+        } else if (biometryType === 'TouchID') {
+          console.log('TouchID is supported.');
+          return true;
+        } else if (biometryType === true) {
+          // Touch ID is supported on Android
+          console.log('TouchID is supportedaaaaa.');
+
+          return true;
+        }
+      })
+      .catch(error => {
+        // userData.BIOMETRICS = '';
+
+        if (Platform.OS == 'android') {
+          if (error.code == 'NOT_ENROLLED') {
+            Alert.alert(
+              'Thông báo',
+              'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
+              [
+                {
+                  text: 'Đóng',
+                  onPress: () => {},
+                  style: 'cancel',
+                },
+                {
+                  text: 'Cài đặt',
+                  onPress: () => {
+                    openSettings();
+                  },
+                },
+              ],
+            );
+          } else {
+            Alert.alert(
+              'Thông báo',
+              'Điện thoại của bạn không hỗ trợ xác thực vân tay/ khuôn mặt',
+            );
+          }
+        } else {
+          if (error.name == 'LAErrorTouchIDNotEnrolled') {
+            Alert.alert(
+              'Thông báo',
+              'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
+              [
+                {
+                  text: 'Đóng',
+                  onPress: () => {},
+                  style: 'cancel',
+                },
+                {
+                  text: 'Cài đặt',
+                  onPress: () => {
+                    openSettings();
+                  },
+                },
+              ],
+            );
+          } else {
+            Alert.alert(
+              'Thông báo',
+              'Điện thoại của bạn không hỗ trợ xác thực vân tay/ khuôn mặt',
+            );
+          }
+        }
+        return false;
+      });
+  };
+  const turnOnOffBio = async (
+    check: boolean | ((prevState: boolean) => boolean),
+  ) => {
+    //NOTE: khi nào tích hợp vân tay thì mở cả đống này ra
+    try {
+      let result = await checkBioSupport();
+
+      if (result) {
+        TouchID.authenticate('', fingerConig)
+          .then(async (success: any) => {
+            if (!stringIsEmpty(userData.BIOMETRICS)) {
+              await setBiometrics(check);
+              console.log('isOnBiometricsisOnBiometrics', check);
+              const currentAccount = {
+                username: await AsyncStorage.getItem('username'),
+                password: await AsyncStorage.getItem('password'),
+              };
+              await AsyncStorage.setItem('BIO', check.toString());
+              await AsyncStorage.setItem(
+                'Bio_username',
+                currentAccount.username,
+              );
+              await AsyncStorage.setItem(
+                'Bio_password',
+                currentAccount.password,
+              );
+              setBiometrics(true);
+            } else {
+              await setBiometrics(false);
+              await AsyncStorage.setItem('BIO', 'false');
+              setBiometrics(false);
+            }
+
+            return true;
+          })
+          .catch((error: any) => {
+            console.log('ERRRORRRR', error);
+            return false;
+          });
+      } else {
+        return false;
+      }
+    } catch (e) {
+      console.log('ERRRORRRR', e);
+      return false;
+    }
+  };
+  const openSettings = () => {
+    if (Platform.OS !== 'ios') {
+      NativeModules.OpenSettings.openNetworkSettings(() => {});
+    } else {
+      Linking.openURL('App-Prefs:PASSCODE');
+    }
+  };
+
   return (
     <TouchableOpacity
+      onPress={() => {
+        onPress && onPress();
+      }}
       style={[
         styles.viewRow,
         {
@@ -71,10 +276,15 @@ const ItemButton = ({
       {switcher ? (
         <Switch
           trackColor={{ false: COLOR.gray1, true: 'rgba(87, 51, 83, 0.5)' }}
-          thumbColor={isEnabled ? COLOR.purple : '#f4f3f4'}
+          thumbColor={isOnBiometrics ? COLOR.purple : '#f4f3f4'}
           ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch}
-          value={isEnabled}
+          onValueChange={async () => {
+            toggleSwitch();
+
+            console.log('111111111111111---->>>>', isOnBiometrics);
+            await turnOnOffBio(!isOnBiometrics);
+          }}
+          value={isOnBiometrics}
         />
       ) : arrow ? (
         <View style={styles.viewRow}>
@@ -102,6 +312,26 @@ const ItemButton = ({
   );
 };
 const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
+  const dispatch = useAppDispatch();
+  const onPressLogOut = async () => {
+    try {
+      await AsyncStorage.setItem('login', '');
+      userData.username = '';
+      userData.BIOMETRICS = '';
+      userData.token = '';
+
+      dispatch(logoutAction());
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 1,
+          routes: [{ name: 'Login', params: { logout: 'logout' } }],
+        }),
+      );
+      // setLoading(false);
+    } catch (error) {
+      // setLoading(false);
+    }
+  };
   return (
     <BackgroundApp>
       <Header
@@ -215,6 +445,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{}}
           arrow
+          onPress={() => {}}
         />
         <ItemButton
           image={IMAGE.ic_logout}
@@ -222,6 +453,9 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{}}
           arrow={false}
+          onPress={() => {
+            onPressLogOut();
+          }}
         />
         <Text
           style={{
@@ -241,6 +475,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{}}
           arrow
+          onPress={() => {}}
         />
         <ItemButton
           image={IMAGE.ic_contact}
@@ -248,6 +483,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{ marginBottom: 16 }}
           arrow
+          onPress={() => {}}
         />
       </ScrollView>
     </BackgroundApp>

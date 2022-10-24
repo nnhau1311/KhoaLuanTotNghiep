@@ -16,7 +16,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { FONT, SIZE } from '../../constants';
+import { COLOR, FONT, SIZE } from '../../constants';
 import { IMAGE } from '../../constants/Image';
 
 const BASE_SIZE = SIZE.h40; //text size and padding size
@@ -191,7 +191,7 @@ const TextField = forwardRef((props: any, ref) => {
           <Image
             style={[
               styles.icon32,
-              { height: SIZE.h80, width: SIZE.h80, tintColor: null },
+              { height: SIZE.h80, width: SIZE.h80, tintColor: '#FDA758' },
             ]}
             source={props.imageLeft}
           />
@@ -201,7 +201,10 @@ const TextField = forwardRef((props: any, ref) => {
       return (
         // console.log(props.imageLeft)
         // return
-        <Image style={[styles.icon32]} source={props.imageLeft} />
+        <Image
+          style={[styles.icon32, { tintColor: '#FDA758' }]}
+          source={props.imageLeft}
+        />
       );
     }
   };

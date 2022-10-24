@@ -16,7 +16,7 @@ const App = () => {
     // <AuthContext.Provider>
     <NavigationContainer>
       <StatusBar animated={true} backgroundColor={COLOR.bg} hidden={true} />
-      <MainStack.Navigator initialRouteName={MainRoutes.TabNavigation}>
+      <MainStack.Navigator initialRouteName={MainRoutes.Login}>
         <>
           <MainStack.Screen
             name={MainRoutes.Splash}

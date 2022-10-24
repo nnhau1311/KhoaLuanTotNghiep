@@ -237,6 +237,18 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_logout.png'),
     name: '/ic_logout.png',
   },
+  ic_checkbox_fill: {
+    path: require('../assets/images/ic_checkSquare_fill.png'),
+    name: '/ic_Checkbox_fill.png',
+  },
+  ic_checkSquare_empty: {
+    path: require('../assets/images/ic_checkSquare_empty.png'),
+    name: '/ic_checkSquare_empty.png',
+  },
+   ic_bioMetrics: {
+    path: require('../assets/images/ic_bioMetrics.png'),
+    name: '/ic_bioMetrics.png',
+  },
 };
 
 let convertImage: Function = () => {

@@ -20,7 +20,7 @@ export async function post(path: string, data: any): Promise<any> {
   let result = { error: false, message: '' };
   try {
     result = await axios.post(`${API_DOMAIN}/${path}`, data, config);
-    Logger.info(`API Result: ${result}`);
+    // Logger.info(`API Result: ${result}`);
     return result;
   } catch (error) {
     Logger.error(`API Error: ${error}`);

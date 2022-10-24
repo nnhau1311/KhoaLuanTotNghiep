@@ -11,9 +11,10 @@ import {
   TouchableOpacity,
   Image,
   Text,
+  ScrollView,
 } from 'react-native';
 import { NormalButton } from '../../components/button';
-import { COLOR, SIZE, STRING } from '../../constants';
+import { COLOR, SIZE, STRING, stringIsEmpty } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { Status } from '../../models';
 import { loginAction } from '../../redux/reducer/userReducer';
@@ -27,6 +28,9 @@ import { IMAGE } from '../../constants/Image';
 import ButtonLogin from '../../components/button/ButtonLogin';
 import { STYLES } from '../../constants/Style';
 import TextField from '../../components/textInput/TextField';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { userData } from '../../configs';
+import Loading from '../../components/loading/Loading';
 const optionalConfigObject = {
   unifiedErrors: false,
   passcodeFallback: false, // if true is passed, itwill allow isSupported to return an error if the device is not enrolled in touch id/face id etc. Otherwise, it will just tell you what method is supported, even if the user is not enrolled.  (default false)
@@ -43,44 +47,36 @@ const Login = ({ navigation }: MainNavigationProp) => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(state => state.userReducer.status);
   const message = useAppSelector(state => state.userReducer.message);
-  // const loginData = useAppSelector(state => state.userReducer.loginData);
+  const result = useAppSelector(state => state.userReducer.loginData);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [iconBio, setIconBio] = useState('');
+  const [isCheck, setIsCheck] = useState(false);
+  const [loading, setLoading] = useState(false);
   const user = useRef<any>();
   const pass = useRef<any>();
-  const onChangeUsername = (value: string) => {
-    setUsername(value);
+  const onRememberLogin = () => {
+    setIsCheck(!isCheck);
   };
-
-  const onChangePassword = (value: string) => {
-    setPassword(value);
-  };
-
   const onPressLogin = () => {
-    // dispatch(
-    //   loginAction({
-    //     username: username,
-    //     Password: password,
-    //     OS: '1',
-    //     DeviceID: '123123123123',
-    //     DeviceToken: 'firebase token',
-    //     LangID: 'VN',
-    //     company: 'HDBANK',
-    //     Version: '1.0',
-    //     build: '10',
-    //   }),
-    // );
-  };
+    if (username === '') {
+      user.current.showError('Tên đăng nhập không được để trống');
+    }
+    if (password === '') {
+      pass.current.showError('Mật khẩu không được để trống');
+    }
+    if (username && password) {
+      setLoading(true);
+      const input = {
+        username: username,
+        password: password,
+      };
+      dispatch(loginAction(input));
 
-  // useEffect(() => {
-  //   if (status === Status.success) {
-  //     navigation.replace(MainRoutes.BottomBar);
-  //   }
-  //   if (status === Status.error && message !== '') {
-  //     Alert.alert(message);
-  //   }
-  // }, [message, navigation, status]);
+      // navigation.navigate(MainRoutes.Home);
+    }
+  };
   const openSettings = () => {
     if (Platform.OS !== 'ios') {
       NativeModules.OpenSettings.openNetworkSettings(() => {});
@@ -183,7 +179,18 @@ const Login = ({ navigation }: MainNavigationProp) => {
       if (resultBio) {
         TouchID.authenticate('', fingerConig)
           .then(async (_success: any) => {
-            Alert.alert('Thông báo', 'Đăng nhập thành công!');
+            const dataUser = {
+              username: await AsyncStorage.getItem('Bio_username'),
+              password: await AsyncStorage.getItem('Bio_password'),
+            };
+            setUsername(JSON.stringify(dataUser?.username));
+            setPassword(JSON.stringify(dataUser?.password));
+            if (
+              !stringIsEmpty(JSON.stringify(dataUser?.username)) &&
+              !stringIsEmpty(JSON.stringify(dataUser?.password))
+            ) {
+              dispatch(loginAction(dataUser));
+            }
           })
           .catch((_error: any) => {});
       } else {
@@ -193,46 +200,91 @@ const Login = ({ navigation }: MainNavigationProp) => {
       Alert.alert('Thông báo', 'Nhận diện sinh trắc học thất bại', [{}]);
     }
   };
-  // const COLOR = [
-  //   { activeColor: '#f39c12', inActiveColor: '#FDA758' },
-  //   { activeColor: '#573353', inActiveColor: 'rgba(87, 51, 83, 0.1)' },
-  //   { activeColor: '#F65B4E', inActiveColor: 'rgba(246, 91, 78, 0.1)' },
-  // ];
-  const BOTTOMBAR = [
-    {
-      id: 1,
-      image: IMAGE.ic_home,
-      image_default: IMAGE.ic_home_default,
-      select: true,
-    },
-    {
-      id: 2,
-      image: IMAGE.ic_course,
-      image_default: IMAGE.ic_course_default,
-      select: false,
-    },
-    {
-      id: 3,
-      image: undefined,
-      image_default: undefined,
-      select: false,
-    },
-    {
-      id: 4,
-      image: IMAGE.ic_people,
-      image_default: IMAGE.ic_people_default,
-      select: false,
-    },
-    {
-      id: 5,
-      image: IMAGE.ic_setting,
-      image_default: IMAGE.ic_setting_default,
-      select: false,
-    },
-  ];
-  const [data, setData] = useState(BOTTOMBAR);
+  const storeData = async () => {
+    try {
+      const data = {
+        username: username,
+        password: password,
+        isCheck: isCheck,
+      };
+      const jsonData = JSON.stringify(data);
+
+      await AsyncStorage.setItem('login', jsonData);
+    } catch (e) {
+      console.log('store_Data_Login_Error', e);
+    }
+  };
+  const getData = async () => {
+    try {
+      const jsonData = await AsyncStorage.getItem('login');
+      const data = JSON.parse(jsonData + '');
+      console.log('data: ', data);
+      if (data.username && data.password && data?.isCheck) {
+        setUsername(data.username);
+        setPassword(data.password);
+        setIsCheck(data?.isCheck);
+        setLoading(true);
+        setUsername(data?.username);
+        setPassword(data?.password);
+        if (!stringIsEmpty(iconBio) && iconBio !== 'false') {
+          onPressBioLogin();
+        } else {
+          dispatch(loginAction(data));
+        }
+      }
+    } catch (e) {
+      console.log('getDataLoginError: ', e);
+    }
+  };
+  useEffect(() => {
+    if (status === Status.success && result?.StatusCode == '200') {
+      console.log('resutttttttttttttttt', result);
+      if (isCheck) {
+        storeData();
+      }
+      userData.token = result?.Data?.accessToken;
+      userData.username = username;
+      userData.password = password;
+      navigation.navigate(MainRoutes.TabNavigation);
+
+      (async () => {
+        try {
+          await AsyncStorage.setItem('username', username);
+          await AsyncStorage.setItem('password', password);
+        } catch (error) {
+          console.log('errorerrorerrorerror', error);
+        }
+      })();
+      setLoading(false);
+    } else if (status === Status.success && result?.StatusCode !== '200') {
+      setLoading(false);
+      Alert.alert('Notification', result?.message);
+    }
+
+    if (status === Status.error && message !== '') {
+      setLoading(false);
+      Alert.alert('Thông báo', message);
+    }
+  }, [status]);
+  async function getBio() {
+    const Bio = await AsyncStorage.getItem('BIO');
+    setIconBio(JSON.stringify(Bio));
+  }
+  useEffect(() => {
+    getBio();
+    // if (
+    //   !stringIsEmpty(iconBio) &&
+    //   iconBio !== 'false'
+    // ) {
+    //   onPressBioLogin();
+    // } else {
+    //   getData();
+    // }
+    getData();
+  }, []);
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      {loading && <Loading />}
       <ImageBackground
         // source={require('../../assets/images/img_bg_login.png')}
         source={IMAGE.img_bg_login}
@@ -454,13 +506,56 @@ const Login = ({ navigation }: MainNavigationProp) => {
               style={{ backgroundColor: '#FFF6ED', marginTop: SIZE.h24 }}
             />
           </View>
+
+          <View
+            style={[
+              styles.viewRow,
+              {
+                marginVertical: 16,
+                width: '100%',
+                justifyContent: 'space-between',
+              },
+            ]}>
+            <View style={styles.viewRow}>
+              <TouchableOpacity onPress={onRememberLogin}>
+                <Image
+                  source={
+                    !isCheck
+                      ? IMAGE.ic_checkSquare_empty
+                      : IMAGE.ic_checkbox_fill
+                  }
+                  style={[
+                    styles.icon20,
+                    { tintColor: !isCheck ? COLOR.orange : COLOR.orange },
+                  ]}
+                />
+              </TouchableOpacity>
+              <Text style={styles.textRemember}>{'Remember login'}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.viewRow, { alignItems: 'center' }]}
+              onPress={onPressBioLogin}>
+              <Image
+                source={IMAGE.ic_bioMetrics}
+                style={[
+                  styles.icon20,
+                  {
+                    tintColor: !isCheck ? COLOR.orange : COLOR.orange,
+                    width: 16,
+                    height: 16,
+                  },
+                ]}
+              />
+              <Text style={styles.textRemember}>{'Biometric login'}</Text>
+            </TouchableOpacity>
+          </View>
+
           <NormalButton
             label="Login"
             style={{
               backgroundColor: '#FDA758',
               paddingVertical: 8,
               borderRadius: 12,
-              marginTop: 16,
             }}
             labelStyle={{
               fontWeight: '700',
@@ -468,7 +563,8 @@ const Login = ({ navigation }: MainNavigationProp) => {
               fontSize: 16,
             }}
             onPress={() => {
-              navigation.navigate(MainRoutes.TabNavigation);
+              // navigation.navigate(MainRoutes.TabNavigation);
+              onPressLogin();
             }}
           />
           <TouchableOpacity
@@ -519,7 +615,7 @@ const Login = ({ navigation }: MainNavigationProp) => {
           </View>
         </View>
       </ImageBackground>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -553,5 +649,21 @@ const styles = StyleSheet.create({
   },
   rightHeart: {
     borderTopLeftRadius: 16,
+  },
+  viewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  icon20: {
+    height: SIZE.h40,
+    width: SIZE.h40,
+    resizeMode: 'contain',
+  },
+  textRemember: {
+    fontWeight: '400',
+    fontSize: 14,
+    color: COLOR.orange,
+    //fontFamily: FONT.regular,
+    marginLeft: 6,
   },
 });
