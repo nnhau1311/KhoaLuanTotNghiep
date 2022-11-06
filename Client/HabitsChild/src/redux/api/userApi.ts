@@ -1,7 +1,7 @@
-import { LoginDTO } from '../../dto';
+import { LoginDTO, ResetPassDTO, SignUpDTO } from '../../dto';
 import { UserModel } from '../../models';
 import { HttpData, post } from '../../helpers/apiHelper';
-import { LoginModel } from '../../models/Login';
+import { LoginModel, ResetPassModel, SignUpModel } from '../../models/Login';
 
 export async function loginAPI({
   ...input
@@ -12,4 +12,24 @@ export async function loginAPI({
     return result;
   }
   return { data: result?.data as LoginModel };
+}
+export async function signUpAPI({
+  ...input
+}: SignUpDTO): Promise<HttpData<SignUpModel>> {
+  const result = await post('user/sign-up', input);
+
+  if (result?.error) {
+    return result;
+  }
+  return { data: result?.data as SignUpModel };
+}
+export async function resetPassAPI({
+  ...input
+}: ResetPassDTO): Promise<HttpData<ResetPassModel>> {
+  const result = await post('user/request-reset-password', input);
+
+  if (result?.error) {
+    return result;
+  }
+  return { data: result?.data as ResetPassModel };
 }

@@ -265,22 +265,21 @@ const Login = ({ navigation }: MainNavigationProp) => {
       setLoading(false);
       Alert.alert('Thông báo', message);
     }
-  }, [status]);
+  }, [status, result, message]);
   async function getBio() {
     const Bio = await AsyncStorage.getItem('BIO');
-    setIconBio(JSON.stringify(Bio));
+    console.log('Bio', Bio);
+    setIconBio(Bio);
   }
   useEffect(() => {
+    console.log('object', !stringIsEmpty(iconBio));
     getBio();
-    // if (
-    //   !stringIsEmpty(iconBio) &&
-    //   iconBio !== 'false'
-    // ) {
-    //   onPressBioLogin();
-    // } else {
-    //   getData();
-    // }
-    getData();
+    if (!stringIsEmpty(iconBio) && iconBio !== 'false') {
+      onPressBioLogin();
+    } else {
+      getData();
+    }
+    // getData();
   }, []);
   return (
     <ScrollView style={styles.container}>
@@ -532,22 +531,24 @@ const Login = ({ navigation }: MainNavigationProp) => {
               </TouchableOpacity>
               <Text style={styles.textRemember}>{'Remember login'}</Text>
             </View>
-            <TouchableOpacity
-              style={[styles.viewRow, { alignItems: 'center' }]}
-              onPress={onPressBioLogin}>
-              <Image
-                source={IMAGE.ic_bioMetrics}
-                style={[
-                  styles.icon20,
-                  {
-                    tintColor: !isCheck ? COLOR.orange : COLOR.orange,
-                    width: 16,
-                    height: 16,
-                  },
-                ]}
-              />
-              <Text style={styles.textRemember}>{'Biometric login'}</Text>
-            </TouchableOpacity>
+            {!stringIsEmpty(iconBio) && iconBio !== 'false' && (
+              <TouchableOpacity
+                style={[styles.viewRow, { alignItems: 'center' }]}
+                onPress={onPressBioLogin}>
+                <Image
+                  source={IMAGE.ic_bioMetrics}
+                  style={[
+                    styles.icon20,
+                    {
+                      tintColor: !isCheck ? COLOR.orange : COLOR.orange,
+                      width: 16,
+                      height: 16,
+                    },
+                  ]}
+                />
+                <Text style={styles.textRemember}>{'Biometric login'}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <NormalButton

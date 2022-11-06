@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -8,67 +8,47 @@ import {
   Dimensions,
   ImageBackground,
   FlatList,
+  Alert,
 } from 'react-native';
 import Header from '../../components/header/Header';
 import TabHorizontal from '../../components/tab/TabHorizontal';
 import { COLOR } from '../../constants';
 import { IMAGE } from '../../constants/Image';
 import { STYLES } from '../../constants/Style';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { ItemHabit, Status } from '../../models';
+import { getListHabitsAction } from '../../redux/reducer/habitsReducer';
 import { MainRoutes } from '../../routes/routes';
 import { MainNavigationProp } from '../../routes/type';
 
 interface HomeProps {}
-const BOTTOMBAR = [
-  {
-    id: 1,
-    image: IMAGE.ic_home,
-    image_default: IMAGE.ic_home_default,
-    select: true,
-  },
-  {
-    id: 2,
-    image: IMAGE.ic_course,
-    image_default: IMAGE.ic_course_default,
-    select: false,
-  },
-  {
-    id: 3,
-    image: undefined,
-    image_default: undefined,
-    select: false,
-  },
-  {
-    id: 4,
-    image: IMAGE.ic_people,
-    image_default: IMAGE.ic_people_default,
-    select: false,
-  },
-  {
-    id: 5,
-    image: IMAGE.ic_setting,
-    image_default: IMAGE.ic_setting_default,
-    select: false,
-  },
-];
-const HABITS = [
-  {
-    id: 1,
-    title: 'Read book',
-  },
-  {
-    id: 2,
-    title: 'Learn English',
-  },
-  {
-    id: 3,
-    title: 'Play Football',
-  },
-];
+
 const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
-  const [data, setData] = useState(BOTTOMBAR);
+  const [dataHabits, setDataHabits] = useState([]);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(state => state.habitsReducer.statusListHabits);
+  const message = useAppSelector(
+    state => state.habitsReducer.messageListHabits,
+  );
+  const result = useAppSelector(state => state.habitsReducer.listHabitsData);
+  useEffect(() => {
+    dispatch(getListHabitsAction());
+  }, []);
+  useEffect(() => {
+    if (status === Status.success && result?.StatusCode === '200') {
+      setDataHabits(result.Data.content);
+    } else if (status === Status.success && result?.StatusCode !== '200') {
+      Alert.alert('Notification', 'Get list habits error');
+    }
+    if (status === Status.error && message) {
+      Alert.alert('Notification', message);
+    }
+  }, [status]);
   return (
     <View style={styles.container}>
       <Header
+        onPressLeft={() => {}}
+        onPressRight={() => {}}
         iconLeft
         iconRight
         imageLeft={IMAGE.ic_menu}
@@ -110,74 +90,75 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
             source={IMAGE.img_bg}
             style={{ width: '100%', height: '100%' }}>
             <View style={{ paddingHorizontal: 16 }}>
-              <TabHorizontal data={[]} />
-              <View>
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={HABITS}
-                  keyExtractor={item => {
-                    item.id.toString();
-                  }}
-                  renderItem={({ item }) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => {
-                          navigation.navigate(MainRoutes.HaibitDetail);
-                        }}
+              <TabHorizontal
+                data={[]}
+                onChangeTab={() => {
+                  console.log('tabbbbbbbbbbb', dataHabits);
+                }}
+              />
+
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={dataHabits}
+                keyExtractor={item => {
+                  item.id.toString();
+                }}
+                renderItem={({ item }) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate(MainRoutes.HaibitDetail);
+                      }}
+                      style={{
+                        width: '100%',
+                        paddingVertical: 16,
+                        paddingHorizontal: 16,
+                        flexDirection: 'row',
+                        //   justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderRadius: 8,
+                        backgroundColor: 'white',
+                        marginTop: 6,
+                      }}>
+                      <View
                         style={{
-                          width: '100%',
-                          paddingVertical: 16,
-                          paddingHorizontal: 16,
+                          width: '80%',
                           flexDirection: 'row',
-                          //   justifyContent: 'space-between',
                           alignItems: 'center',
-                          borderRadius: 8,
-                          backgroundColor: 'white',
-                          marginTop: 6,
                         }}>
                         <View
                           style={{
-                            width: '80%',
-                            flexDirection: 'row',
+                            width: 40,
+                            height: 40,
+                            borderRadius: 100,
+                            justifyContent: 'center',
                             alignItems: 'center',
+                            backgroundColor: COLOR.bg,
                           }}>
-                          <View
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 100,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              backgroundColor: COLOR.bg,
-                            }}>
-                            <Image
-                              source={IMAGE.ic_book}
-                              style={[STYLES.icon24, { tintColor: 'orange' }]}
-                            />
-                          </View>
-                          <Text
-                            style={{
-                              color: COLOR.purple,
-                              fontWeight: '700',
-                              fontSize: 16,
-                              lineHeight: 24,
-                              marginLeft: 12,
-                            }}>
-                            {item.title}
-                          </Text>
-                        </View>
-                        <TouchableOpacity
-                          style={{ width: '20%', alignItems: 'flex-end' }}>
                           <Image
-                            source={IMAGE.ic_more}
-                            style={[STYLES.icon24]}
+                            source={IMAGE.ic_book}
+                            style={[STYLES.icon24, { tintColor: 'orange' }]}
                           />
-                        </TouchableOpacity>
+                        </View>
+                        <Text
+                          style={{
+                            color: COLOR.purple,
+                            fontWeight: '700',
+                            fontSize: 16,
+                            lineHeight: 24,
+                            marginLeft: 12,
+                          }}>
+                          {item?.habitsId}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={{ width: '20%', alignItems: 'flex-end' }}>
+                        <Image source={IMAGE.ic_more} style={[STYLES.icon24]} />
                       </TouchableOpacity>
-                    );
-                  }}
-                />
-              </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
             </View>
           </ImageBackground>
         </View>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import BackgroundApp from '../../components/background/BackgroundApp';
 import Header from '../../components/header/Header';
@@ -19,31 +20,92 @@ import {
 } from '@ddc-fis-hcm/react-native-sdk';
 import { SIZE } from '@ddc-fis-hcm/react-native-sdk/react-native-sdk-source/styles/size';
 import { COLOR } from '../../constants';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Status } from '../../models';
+import {
+  addHabitsAction,
+  getListHabitsManagerAction,
+  resetStateAddHabits,
+} from '../../redux/reducer/habitsReducer';
+import moment from 'moment';
 
 interface AddHabitsProps {}
-const dataHabits = [
-  {
-    id: '1',
-    value: 'Read Book',
-  },
-  {
-    id: '2',
-    value: 'Learn English',
-  },
-  {
-    id: '3',
-    value: 'Play Sport',
-  },
-  {
-    id: '4',
-    value: 'Play Game',
-  },
-];
+
 const AddHabits = (
   { navigation }: MainNavigationProp,
   props: AddHabitsProps,
 ) => {
+  const [dataHabits, setDataHabits] = useState([]);
+  const [nameHabit, setNameHabit] = useState('');
+  const [idHabits, setIdHabits] = useState('');
+  const [numberFinish, setNumberFinsh] = useState(0);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [fromTime, setFromTime] = useState('');
   const bottomSheet = useRef<any>();
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(
+    state => state.habitsReducer.statusListHabitsManager,
+  );
+  const message = useAppSelector(
+    state => state.habitsReducer.messageListHabitsManager,
+  );
+  const result = useAppSelector(
+    state => state.habitsReducer.listHabitsDataManager,
+  );
+  const statusAddHabits = useAppSelector(
+    state => state.habitsReducer.statusAddHabits,
+  );
+  const messageAddHabits = useAppSelector(
+    state => state.habitsReducer.messageAddHabits,
+  );
+  const resultAddHabits = useAppSelector(
+    state => state.habitsReducer.addHabitsData,
+  );
+  useEffect(() => {
+    dispatch(getListHabitsManagerAction());
+  }, []);
+  useEffect(() => {
+    if (status === Status.success && result?.StatusCode === '200') {
+      console.log('dataaaaaaaManager', result.Data.content);
+      let tmp = result.Data.content.map(item => {
+        return Object.assign({}, item, { isSelected: false });
+      });
+      setDataHabits(tmp);
+    } else if (status === Status.success && result?.StatusCode !== '200') {
+      Alert.alert('Notification', 'Get list habits error');
+    }
+    if (status === Status.error && message) {
+      Alert.alert('Notification', message);
+    }
+  }, [status]);
+  useEffect(() => {
+    if (statusAddHabits === Status.success && result?.StatusCode === '200') {
+      dispatch(resetStateAddHabits());
+      Alert.alert('Notification', 'Add new habit success');
+    } else if (
+      statusAddHabits === Status.success &&
+      result?.StatusCode !== '200'
+    ) {
+      dispatch(resetStateAddHabits());
+      Alert.alert('Notification', 'Add new habit error');
+    }
+    if (statusAddHabits === Status.error && messageAddHabits) {
+      dispatch(resetStateAddHabits());
+      Alert.alert('Notification', message);
+    }
+  }, [statusAddHabits]);
+  useEffect(() => {
+    if (fromDate) {
+      var d = new Date(fromDate);
+      d.setDate(d.getDate() + numberFinish);
+      console.log('text', moment(d).format());
+      // console.log('text2', new Date(sum));
+      var _toDay = moment(d).format('DD-MM-YYYY');
+      setToDate(_toDay.toString());
+    }
+  }, [fromDate]);
+
   return (
     <BackgroundApp>
       <Header
@@ -67,10 +129,38 @@ const AddHabits = (
             alignItems: 'flex-end',
             // backgroundColor: 'red',
           }}>
-          <TextField
+          {/* <TextField
+            value={nameHabit}
             label={'Enter habit name'}
             containerStyle={[styles.margin, { width: '80%' }]}
-          />
+            onChangeText={(text: string) => {
+              setNameHabit(text);
+            }}
+          /> */}
+          <View
+            style={{
+              width: '80%',
+              borderRadius: 8,
+              backgroundColor: 'white',
+              paddingVertical: nameHabit ? 6 : 16,
+              paddingHorizontal: 16,
+            }}>
+            {nameHabit ? (
+              <Text
+                style={{ fontWeight: '400', color: '#BFBFBF', lineHeight: 24 }}>
+                Habits Name
+              </Text>
+            ) : null}
+            <Text
+              style={{
+                fontWeight: '400',
+                color: nameHabit ? COLOR.black : '#BFBFBF',
+                lineHeight: 24,
+                fontSize: 16,
+              }}>
+              {nameHabit ? nameHabit : 'Habit Name'}
+            </Text>
+          </View>
           <TouchableOpacity
             onPress={() => {
               bottomSheet?.current?.open();
@@ -111,20 +201,11 @@ const AddHabits = (
           <DateTimePicker
             // dateValue={dayjs(new Date())}
             dateValue={''}
-            label={'Start day'}
-            containerStyle={[styles.margin, { width: '48%' }]}
-            onDateChange={(value: any) => {
-              // setFromDate(value?.value);
-            }}
-          />
-
-          <DateTimePicker
-            // dateValue={dayjs(new Date())}
-            dateValue={''}
             label={'Start time'}
             containerStyle={[styles.margin, { width: '48%' }]}
             onDateChange={(value: any) => {
-              // setFromDate(value?.value);
+              console.log('vlueeê', value);
+              setFromTime(value?.dateString);
             }}
             mode="time"
           />
@@ -133,18 +214,71 @@ const AddHabits = (
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            // alignItems: 'center',
+            alignItems: 'flex-end',
           }}>
-          <DateTimePicker
+          {/* <DateTimePicker
             // dateValue={dayjs(new Date())}
-            dateValue={''}
+            dateValue={toDate}
             label={'Last day'}
             containerStyle={[styles.margin, { width: '48%' }]}
             onDateChange={(value: any) => {
               // setFromDate(value?.value);
             }}
-          />
+          /> */}
           <DateTimePicker
+            // dateValue={dayjs(new Date())}
+            dateValue={''}
+            label={'Start day'}
+            containerStyle={[styles.margin, { width: '48%' }]}
+            onDateChange={(value: any) => {
+              console.log('value', value.value);
+              setFromDate(value?.value);
+            }}
+          />
+          <View
+            style={{
+              width: '48%',
+              borderRadius: 8,
+              backgroundColor: 'white',
+              height: 16 * 3.5,
+              paddingHorizontal: 16,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View>
+              {toDate ? (
+                <Text
+                  style={{
+                    fontWeight: '400',
+                    color: '#BFBFBF',
+                    lineHeight: 24,
+                  }}>
+                  Last day
+                </Text>
+              ) : null}
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: toDate ? COLOR.black : '#BFBFBF',
+                  lineHeight: 24,
+                  fontSize: 16,
+                }}>
+                {toDate ? toDate : 'Last day'}
+              </Text>
+            </View>
+            <Image
+              source={IMAGE.ic_arrow_down1}
+              style={{
+                width: 10,
+                height: 12,
+                resizeMode: 'contain',
+                tintColor: 'gray',
+                opacity: 0.8,
+              }}
+            />
+          </View>
+          {/* <DateTimePicker
             // dateValue={dayjs(new Date())}
             dateValue={''}
             label={'Last time'}
@@ -153,8 +287,38 @@ const AddHabits = (
               // setFromDate(value?.value);
             }}
             mode="time"
-          />
+          /> */}
         </View>
+        <TouchableOpacity
+          onPress={() => {
+            console.log('dataNewwwwwwww', {
+              habitsId: idHabits,
+              dateStart:
+                moment(fromDate).format().toString().split('T')[0] +
+                'T' +
+                fromTime +
+                '+07:00',
+            });
+            dispatch(
+              addHabitsAction({
+                habitsId: idHabits,
+                dateStart: moment(fromDate).format().toString(),
+              }),
+            );
+          }}
+          style={{
+            paddingVertical: 12,
+            paddingHorizontal: 16,
+            alignItems: 'center',
+            backgroundColor: COLOR.orange,
+            justifyContent: 'center',
+            borderRadius: 8,
+            marginTop: 16,
+          }}>
+          <Text style={{ color: 'white', fontWeight: '400', fontSize: 18 }}>
+            Add new habit
+          </Text>
+        </TouchableOpacity>
       </View>
       <View
         style={{
@@ -228,26 +392,82 @@ const AddHabits = (
           style={{
             height: Dimensions.get('screen').height * 0.4,
           }}>
-          {dataHabits.map(item => {
+          {dataHabits.map((item, index) => {
             return (
-              <TouchableOpacity
-                disabled={false}
-                onPress={() => {
-                  bottomSheet?.current?.close();
-                }}
-                style={[
-                  styles.item,
-                  {
-                    marginTop: item.id !== '1' ? SIZE[6] : 0,
-                  },
-                ]}>
-                <Text
+              <View>
+                <TouchableOpacity
+                  disabled={false}
+                  onPress={() => {
+                    console.log('itemmmmm', item.habitsName);
+                    setNameHabit(item.habitsName);
+                    setIdHabits(item?.id);
+                    setNumberFinsh(item?.numberDateExecute);
+                    bottomSheet?.current?.close();
+                  }}
                   style={[
-                    styles.txtHabit,
-                    { fontWeight: '600' },
-                  ]}>{`Habit ${item.id}: `}</Text>
-                <Text style={styles.txtHabit}>{`${item.value}`}</Text>
-              </TouchableOpacity>
+                    styles.item,
+                    {
+                      marginTop: index !== 0 ? SIZE[6] : 0,
+                      justifyContent: 'space-between',
+                    },
+                  ]}>
+                  <View>
+                    <Text
+                      style={[
+                        styles.txtHabit,
+                        { fontWeight: '600' },
+                      ]}>{`Habit ${index}: `}</Text>
+                    <Text style={styles.txtHabit}>{`${item.habitsName}`}</Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      let tmp = dataHabits.map(_item => {
+                        if (item.id === _item.id) {
+                          return Object.assign({}, item, {
+                            isSelected: !item?.isSelected,
+                          });
+                        } else {
+                          return _item;
+                        }
+                      });
+                      setDataHabits(tmp);
+                    }}>
+                    <Image
+                      style={{ width: 12, height: 12, resizeMode: 'contain' }}
+                      source={
+                        !item.isSelected
+                          ? IMAGE.ic_arrow_right1
+                          : IMAGE.ic_play_down
+                      }
+                    />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+                {item?.isSelected &&
+                  item.habitsContentList.map((_item: any) => {
+                    return (
+                      <View
+                        style={{
+                          paddingHorizontal: 16,
+                          paddingVertical: 16,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginLeft: 16,
+                        }}>
+                        <Image
+                          source={IMAGE.ic_arrow_right1}
+                          style={{
+                            width: 12,
+                            height: 12,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                        <Text style={[styles.txtHabit, { marginLeft: 6 }]}>
+                          {_item.body}
+                        </Text>
+                      </View>
+                    );
+                  })}
+              </View>
             );
           })}
         </ScrollView>
