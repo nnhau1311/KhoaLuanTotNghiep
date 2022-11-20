@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import {
   Text,
   View,
@@ -10,9 +10,15 @@ import {
 import CircularProgress from 'react-native-circular-progress-indicator';
 import BackgroundApp from '../../components/background/BackgroundApp';
 import Header from '../../components/header/Header';
+import { userData } from '../../configs';
 import { COLOR } from '../../constants';
 import { IMAGE } from '../../constants/Image';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Status } from '../../models';
+import { getInforAction } from '../../redux/reducer/userReducer';
+import { MainRoutes } from '../../routes/routes';
 import { MainNavigationProp } from '../../routes/type';
+import { useIsFocused } from '@react-navigation/native';
 
 interface ProfileProps {}
 interface ItemDataProps {
@@ -70,6 +76,40 @@ const ItemData = ({ data, title, image, style }: ItemDataProps) => {
   );
 };
 const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
+  const dispatch = useAppDispatch();
+  const isFocused = useIsFocused();
+  const messageInfor = useAppSelector(
+    state => state.userReducer.messageInforUser,
+  );
+  const statusInfor = useAppSelector(
+    state => state.userReducer.statusInforUser,
+  );
+  const dataInfor = useAppSelector(state => state.userReducer.InforUserData);
+  useEffect(() => {
+    console.log('isFocused', isFocused);
+    dispatch(getInforAction());
+  }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      dispatch(getInforAction());
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+  useEffect(() => {
+    if (statusInfor === Status.success && dataInfor?.StatusCode === '200') {
+      userData.userId = dataInfor.Data.id;
+      console.log('daataaInfor', dataInfor.Data);
+    } else if (
+      statusInfor === Status.success &&
+      dataInfor?.StatusCode !== '200'
+    ) {
+      Alert.alert('Notification', 'Get Information User Error');
+    }
+    if (statusInfor === Status.error && messageInfor) {
+      Alert.alert('Notification', messageInfor);
+    }
+  }, [statusInfor]);
   return (
     <BackgroundApp>
       <Header
@@ -83,7 +123,11 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
         onPressLeft={() => {
           navigation.goBack();
         }}
-        onPressRight={() => {}}
+        onPressRight={() => {
+          navigation.navigate(MainRoutes.ViewProfile, {
+            dataProfile: dataInfor?.Data,
+          });
+        }}
         styleLeft={{}}
         styleRight={{}}
       />
@@ -114,7 +158,7 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
                     lineHeight: 22,
                     color: COLOR.purple,
                   }}>
-                  Thái Anh Hào
+                  {dataInfor?.Data.userFullName}
                 </Text>
                 <Text
                   style={{
@@ -123,11 +167,11 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
                     lineHeight: 18,
                     color: COLOR.purple,
                   }}>
-                  {'Name'}
+                  {dataInfor?.Data.username}
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.viewRow,
                 {
@@ -157,7 +201,7 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
                   marginLeft: 8,
                 }}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <View style={[styles.viewRow, { marginTop: 12 }]}>
             <ItemData

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Text,
   View,
@@ -12,7 +12,13 @@ import { NormalButton } from '../../components/button';
 import ButtonLogin from '../../components/button/ButtonLogin';
 import Loading from '../../components/loading/Loading';
 import TextField from '../../components/textInput/TextField';
-import { COLOR, SIZE, STRING } from '../../constants';
+import {
+  COLOR,
+  SIZE,
+  STRING,
+  validateEmail,
+  validateFullName,
+} from '../../constants';
 import { IMAGE } from '../../constants/Image';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { Status } from '../../models';
@@ -31,6 +37,10 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const refName = useRef<any>();
+  const refMail = useRef<any>();
+  const refUser = useRef<any>();
+  const refPass = useRef<any>();
   const dispatch = useAppDispatch();
   const status = useAppSelector(state => state.userReducer.statusSignUp);
   const message = useAppSelector(state => state.userReducer.messageSignUp);
@@ -61,33 +71,30 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
       setLoading(false);
       Alert.alert('Notification', message);
     }
-  }, [status, message, result]);
-  const RegexText = (txt: string) => {
-    let regex = new RegExp('/^[a-zA-Z0-9]+$/');
-    return regex.test(txt);
-  };
-  const RegexInfo = (mail: string, user: string, pass: string) => {
-    if (!RegexEmail(mail)) {
-      Alert.alert('Notification', 'Please enter the correct format email!');
+  }, [status]);
+
+  const RegexInfo = (
+    fullName: string,
+    mail: string,
+    user: string,
+    pass: string,
+  ) => {
+    if (!validateFullName(fullName)) {
+      refName.current.showError('Vui lòng nhập đúng thông tin');
+      return false;
+    } else if (!validateEmail(mail)) {
+      refMail.current.showError('Vui lòng nhập đúng định dạng');
+      return false;
+    } else if (user.length < 6) {
+      refUser.current.showError('Vui lòng nhập tối thiểu 6 kí tự');
       return false;
     }
-    // } else {
-    //   if (!RegexText(user)) {
-    //     Alert.alert(
-    //       'Notification',
-    //       'Please enter the correct format username!',
-    //     );
-    //     return false;
-    //   } else {
-    //     if (!RegexText(pass)) {
-    //       Alert.alert(
-    //         'Notification',
-    //         'Please enter the correct format username!',
-    //       );
-    //       return false;
-    //     }
-    //   }
-    // }
+    if (pass.length < 8) {
+      refPass.current.showError('Vui lòng nhập tối thiểu 8 kí tự');
+      return false;
+    } else {
+      return true;
+    }
   };
   return (
     <View style={{ flex: 1 }}>
@@ -112,7 +119,7 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
         </Text>
         <View style={{ width: '100%', marginTop: 24 }}>
           <TextField
-            // ref={user}
+            ref={refName}
             isIcon={true}
             isPassword={false}
             disabled={false}
@@ -128,6 +135,7 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
           />
           <TextField
             // ref={user}
+            ref={refMail}
             isIcon={true}
             isPassword={false}
             disabled={false}
@@ -142,7 +150,7 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
             inputStyle={{ color: 'orange' }}
           />
           <TextField
-            // ref={user}
+            ref={refUser}
             isIcon={true}
             isPassword={false}
             disabled={false}
@@ -157,7 +165,7 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
             inputStyle={{ color: 'orange' }}
           />
           <TextField
-            // ref={pass}
+            ref={refPass}
             isIcon={true}
             isPassword={true}
             disabled={false}
@@ -185,21 +193,21 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
             }}
             onPress={() => {
               if (fullName && email && username && password) {
-                // if (RegexInfo(email, username, password)) {
-                const data = {
-                  userFullName: fullName,
-                  email: email,
-                  userName: username,
-                  userPassword: password,
-                  role: 'staff',
-                };
-                console.log('dataaaa', data);
-                setLoading(true);
-                dispatch(signupAction(data));
+                if (RegexInfo(fullName, email, username, password)) {
+                  const data = {
+                    userFullName: fullName,
+                    email: email,
+                    userName: username,
+                    userPassword: password,
+                    role: 'staff',
+                  };
+                  console.log('dataaaa', data);
+                  setLoading(true);
+                  dispatch(signupAction(data));
+                }
+              } else {
+                Alert.alert('Notification', 'Please enter full information!');
               }
-              // } else {
-              //   Alert.alert('Notification', 'Please enter full information!');
-              // }
             }}
           />
         </View>

@@ -12,3 +12,12 @@ export interface SignUpDTO {
 export interface ResetPassDTO {
   userInfor: string;
 }
+export interface ChangePassDTO {
+  newPassword: string;
+  oldPassword: string;
+}
+export interface UpdateInforDTO {
+  userAddress: string;
+  userFullName: string;
+  userNumberPhone: string;
+}

@@ -1,7 +1,7 @@
 export interface ItemHabit {
   contentCode: string;
   typeContent: string;
-  body: string;
+  body?: string;
   typeOfFinishCourse: string;
   numberDateExecute: number;
   totalCourse: string;
@@ -19,7 +19,7 @@ export interface ItemHabitManager {
   body: string;
 }
 export interface HabitData {
-  id: string;
+  id?: number;
   userId: string;
   habitsId: string;
   typeOfFinishCourse: string;
@@ -135,4 +135,44 @@ export interface AddHabitsModel {
     violations: string;
     StatusCode: string;
   };
+  StatusCode: string;
+}
+export interface HabitDetailModel {
+  errorCode: string;
+  message: string;
+  refCode: string;
+  Success: boolean;
+  Data: {
+    id: string;
+    userId: string;
+    habitsId: string;
+    habitsName?: string;
+    habitsType: string;
+    attendanceProcess: Array<[]>;
+    startDate: string;
+    endDate: string;
+    createDate: string;
+    updateDate: string;
+    habitsContents: Array<ItemHabit>;
+  };
+  violations: string;
+  StatusCode: string;
+}
+export interface DeleteHabitModel {
+  Data: any;
+  StatusCode: string;
+  Success: boolean;
+  errorCode: string;
+  message: string;
+  refCode: string;
+  violations: boolean;
+}
+export interface CheckInHabitModel {
+  Data: any;
+  StatusCode: string;
+  Success: boolean;
+  errorCode: string;
+  message: string;
+  refCode: string;
+  violations: boolean;
 }

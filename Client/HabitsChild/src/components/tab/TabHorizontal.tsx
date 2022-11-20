@@ -104,7 +104,7 @@ const TabHorizontal = (props: TabProps) => {
           return (
             <TouchableOpacity
               disabled={index == _index}
-              key={index.toString()}
+              key={index + ''}
               style={{
                 backgroundColor: item?.isSelected ? 'orange' : undefined,
                 paddingHorizontal: SIZE.h24,
@@ -146,6 +146,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: SIZE.h40,
     lineHeight: 28,
-    color: COLOR.text,
   },
 });

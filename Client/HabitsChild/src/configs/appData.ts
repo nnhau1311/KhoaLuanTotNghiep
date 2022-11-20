@@ -3,4 +3,5 @@ export const userData = {
   password: '',
   token: '',
   BIOMETRICS: '',
+  userId: '',
 };

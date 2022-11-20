@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
 import { COLOR } from '../../constants';
 import { LocaleConfig, Calendar } from 'react-native-calendars';
@@ -17,6 +18,17 @@ import { MainNavigationProp } from '../../routes/type';
 import { STYLES } from '../../constants/Style';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import PopupDetail from './PopupDetail';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import {
+  CheckInHabitAction,
+  getDetailHabitsAction,
+  resetStateCheckInHabit,
+} from '../../redux/reducer/habitsReducer';
+import { ItemHabit, Status } from '../../models';
+import { MainRoutes } from '../../routes/routes';
+import moment from 'moment';
+import Loading from '../../components/loading/Loading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 interface HaibitDetailProps {}
 LocaleConfig.locales['fr'] = {
   monthNames: [
@@ -110,19 +122,144 @@ const ItemData = ({ data, style, title, source }: ItemDataProps) => {
     </View>
   );
 };
+interface ItemDay {
+  status: boolean;
+  value: string;
+}
 const HaibitDetail = (
-  { navigation }: MainNavigationProp,
+  { navigation, route }: MainNavigationProp<MainRoutes.HaibitDetail>,
   props: HaibitDetailProps,
 ) => {
   const [isPopup, setPopup] = useState(false);
+  const [listDay, setListDay] = useState<Array<ItemDay>>();
+  const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const dispatch = useAppDispatch();
+  const statusDetail = useAppSelector(
+    state => state.habitsReducer.statusDetailHabits,
+  );
+  const messageDetail = useAppSelector(
+    state => state.habitsReducer.messageDetailHabits,
+  );
+  const dataDetail = useAppSelector(
+    state => state.habitsReducer.detailHabitsData,
+  );
+  const statusCheckIn = useAppSelector(
+    state => state.habitsReducer.statusCheckInHabit,
+  );
+  const messageCheckIn = useAppSelector(
+    state => state.habitsReducer.messageCheckInHabit,
+  );
+  const dataCheckIn = useAppSelector(
+    state => state.habitsReducer.checkInHabitsData,
+  );
+  useEffect(() => {
+    dispatch(
+      getDetailHabitsAction({
+        userHabitsId: route.params?.userHabitsId,
+      }),
+    );
+    getData();
+  }, []);
+  useEffect(() => {
+    if (statusDetail === Status.success && dataDetail?.StatusCode === '200') {
+      const objectArray = Object.values(dataDetail.Data.attendanceProcess);
+      var keys = [];
+      for (var item in dataDetail.Data.attendanceProcess) {
+        keys.push(item);
+      }
+      console.log('itemmmmm1111', keys);
+      let tmp = keys.map((item, index) => {
+        console.log('item----', item);
+        return Object.assign(
+          {},
+          {
+            value: item,
+            status: objectArray[index],
+          },
+        );
+      });
+      setListDay(tmp);
+    } else if (
+      statusDetail === Status.success &&
+      dataDetail?.StatusCode == '200'
+    ) {
+      Alert.alert('Notification', 'Get Detail Habit Error');
+    }
+    if (statusDetail === Status.error && messageDetail) {
+      Alert.alert('Notification', messageDetail);
+    }
+  }, [statusDetail]);
+  const storeChecked = async () => {
+    try {
+      const data = true;
+      const jsonData = JSON.stringify(data);
+
+      await AsyncStorage.setItem('checkin', jsonData);
+    } catch (e) {
+      console.log('setDataLoginError: ', e);
+    }
+  };
+  const getData = async () => {
+    try {
+      const jsonData = await AsyncStorage.getItem('checkin');
+      const data = JSON.parse(jsonData + '');
+      console.log('dataCheckInnnnn', data);
+      setChecked(data);
+    } catch (e) {
+      console.log('getDataLoginError: ', e);
+    }
+  };
+  useEffect(() => {
+    if (statusCheckIn === Status.success && dataCheckIn?.StatusCode === '200') {
+      setLoading(false);
+      storeChecked();
+      Alert.alert('Notification', 'Check In Habit Success!', [
+        {
+          text: 'Ok',
+          onPress: () => {
+            dispatch(resetStateCheckInHabit());
+            dispatch(
+              getDetailHabitsAction({
+                userHabitsId: route.params?.userHabitsId,
+              }),
+            );
+          },
+        },
+      ]);
+    } else if (
+      statusCheckIn === Status.success &&
+      dataCheckIn?.StatusCode !== '200'
+    ) {
+      setLoading(false);
+      Alert.alert('Notification', 'Check In Habit Error!', [
+        {
+          text: 'Ok',
+          onPress: () => {
+            dispatch(resetStateCheckInHabit());
+            dispatch(
+              getDetailHabitsAction({
+                userHabitsId: route.params?.userHabitsId,
+              }),
+            );
+          },
+        },
+      ]);
+    }
+    if (statusCheckIn === Status.error && messageCheckIn) {
+      setLoading(false);
+      Alert.alert('Notification', messageCheckIn);
+    }
+  }, [statusCheckIn]);
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <Header
         iconLeft
         iconRight
         imageLeft={IMAGE.ic_back}
         imageRight={IMAGE.ic_edit}
-        title="Read book"
+        title={'Detail Habits'}
         // styleLeft={{ width: 44, height: 44 }}
         // styleRight={{ width: 44, height: 44 }}
         onPressLeft={() => {
@@ -166,20 +303,29 @@ const HaibitDetail = (
                 color: COLOR.purple,
                 lineHeight: 32,
               }}>
-              {'Read book'}
+              {dataDetail?.Data.habitsName}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image source={IMAGE.ic_noti} style={STYLES.icon16} />
-              <Text style={styles.txtNote}>Repeat everyday</Text>
+              <Text style={styles.txtNote}>
+                {moment(dataDetail?.Data.startDate).format('DD/MM/YYYY') +
+                  ' - ' +
+                  moment(dataDetail?.Data.endDate).format('DD/MM/YYYY')}
+              </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image source={IMAGE.ic_repeat} style={STYLES.icon16} />
-              <Text style={styles.txtNote}>Reminders: 5:00 am</Text>
+              <Text style={styles.txtNote}>
+                {'Reminders: ' +
+                  moment(dataDetail?.Data.startDate).format('HH:mm')}
+              </Text>
             </View>
           </View>
         </View>
         <View style={{ marginHorizontal: 16 }}>
           <Calendar
+            hideExtraDays={true}
+            disableMonthChange={true}
             markingType="custom"
             style={[styles.calendar]}
             onMonthChange={month => {
@@ -213,7 +359,7 @@ const HaibitDetail = (
             }}
             dayComponent={({ date, state }) => {
               // console.log('state', state);
-              // console.log('date', date);
+              // console.log('date', date.dateString);
               return (
                 <TouchableOpacity
                   style={{
@@ -241,16 +387,51 @@ const HaibitDetail = (
                       backgroundColor: 'orange',
                       opacity: 0.2,
                     }}></View>
-                  <View style={styles.triangleCorner} />
-                  {/* <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 12,
-          backgroundColor: 'orange',
-         bottom:4,
-          position:'absolute'
-        }}></View> */}
+                  {listDay?.map(item => {
+                    if (
+                      item.value ===
+                      moment(date?.dateString).format('DD-MM-YYYY')
+                    ) {
+                      return (
+                        <View
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: 12,
+                            position: 'absolute',
+                            bottom: 2,
+                            borderWidth: 1,
+                            borderColor: COLOR.orange,
+                          }}></View>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
+                  {listDay?.map(item => {
+                    if (
+                      item.value ===
+                        moment(date?.dateString).format('DD-MM-YYYY') &&
+                      item.status
+                    ) {
+                      return (
+                        <View
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 12,
+                            backgroundColor: 'orange',
+                            bottom: 2,
+                            position: 'absolute',
+                          }}></View>
+                      );
+
+                      // <View style={styles.triangleCorner} />;
+                    } else {
+                      return null;
+                    }
+                  })}
+                  {/* <View style={styles.triangleCorner} /> */}
                 </TouchableOpacity>
               );
             }}
@@ -332,8 +513,38 @@ const HaibitDetail = (
           </View>
           <TouchableOpacity
             onPress={() => {
-              {
-                setPopup(true);
+              if (checked) {
+                Alert.alert(
+                  'Notification',
+                  'You checked today!\nPlease come back tomorrow! ',
+                );
+              } else {
+                {
+                  let data = dataDetail?.Data.habitsContents.filter(item => {
+                    return (
+                      moment(item.startDate).format('DD-MM-YYYY') <=
+                        moment(new Date()).format('DD-MM-YYYY') &&
+                      moment(item.endDate).format('DD-MM-YYYY') >=
+                        moment(new Date()).format('DD-MM-YYYY')
+                    );
+                  });
+                  setLoading(true);
+                  dispatch(
+                    CheckInHabitAction({
+                      habitsId: dataDetail?.Data.habitsId,
+                      userHabitsId: dataDetail?.Data.id,
+                      listHabitsContentCode: [data[0]?.contentCode],
+                    }),
+                  );
+                  if (
+                    moment(new Date()).format('DD-MM-YYYY') ===
+                    dataDetail?.Data.habitsContents[
+                      dataDetail?.Data.habitsContents.length - 1
+                    ].endDate
+                  ) {
+                    setPopup(true);
+                  }
+                }
               }
             }}
             style={[

@@ -1,6 +1,18 @@
-import { LoginDTO, ResetPassDTO, SignUpDTO } from '../../dto';
-import { UserModel } from '../../models';
-import { HttpData, post } from '../../helpers/apiHelper';
+import { userData } from '../../configs';
+import {
+  ChangePassDTO,
+  LoginDTO,
+  ResetPassDTO,
+  SignUpDTO,
+  UpdateInforDTO,
+} from '../../dto';
+
+import { get, HttpData, post } from '../../helpers/apiHelper';
+import {
+  ChangePassModel,
+  inforUserModel,
+  UpdateInforModel,
+} from '../../models';
 import { LoginModel, ResetPassModel, SignUpModel } from '../../models/Login';
 
 export async function loginAPI({
@@ -32,4 +44,32 @@ export async function resetPassAPI({
     return result;
   }
   return { data: result?.data as ResetPassModel };
+}
+export async function getInforUser(): Promise<HttpData<inforUserModel>> {
+  const result = await get('user/me');
+  // console.log('resultApi', result);
+  if (result?.error) {
+    return result;
+  }
+  return { data: result?.data as inforUserModel };
+}
+export async function changePassAPI({
+  ...input
+}: ChangePassDTO): Promise<HttpData<ChangePassModel>> {
+  const result = await post('user/change-password', input);
+
+  if (result?.error) {
+    return result;
+  }
+  return { data: result?.data as ChangePassModel };
+}
+export async function UpdateInforAPI({
+  ...input
+}: UpdateInforDTO): Promise<HttpData<UpdateInforModel>> {
+  const result = await post('user/update-infor/' + userData.userId, input);
+
+  if (result?.error) {
+    return result;
+  }
+  return { data: result?.data as UpdateInforModel };
 }

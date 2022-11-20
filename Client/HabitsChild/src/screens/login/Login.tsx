@@ -12,6 +12,8 @@ import {
   Image,
   Text,
   ScrollView,
+  KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import { NormalButton } from '../../components/button';
 import { COLOR, SIZE, STRING, stringIsEmpty } from '../../constants';
@@ -54,6 +56,7 @@ const Login = ({ navigation }: MainNavigationProp) => {
   const [iconBio, setIconBio] = useState('');
   const [isCheck, setIsCheck] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [keyboardStatus, setKeyboardStatus] = useState(false);
   const user = useRef<any>();
   const pass = useRef<any>();
   const onRememberLogin = () => {
@@ -263,7 +266,7 @@ const Login = ({ navigation }: MainNavigationProp) => {
 
     if (status === Status.error && message !== '') {
       setLoading(false);
-      Alert.alert('Thông báo', message);
+      Alert.alert('Notification', message);
     }
   }, [status, result, message]);
   async function getBio() {
@@ -281,8 +284,21 @@ const Login = ({ navigation }: MainNavigationProp) => {
     }
     // getData();
   }, []);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {loading && <Loading />}
       <ImageBackground
         // source={require('../../assets/images/img_bg_login.png')}
@@ -292,331 +308,203 @@ const Login = ({ navigation }: MainNavigationProp) => {
           width: Dimensions.get('screen').width,
           height: Dimensions.get('screen').height,
         }}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'flex-end',
-            paddingHorizontal: 16,
-          }}>
-          <Text
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View
             style={{
-              fontSize: 24,
-              fontWeight: '700',
-              textAlign: 'center',
-              lineHeight: 32,
-              color: COLOR.purple,
+              justifyContent: 'flex-end',
+              paddingHorizontal: 16,
+              // backgroundColor: 'red',
+              height: Dimensions.get('window').height * 0.4,
             }}>
-            {'WELCOME TO\n Monumental habits'.toUpperCase()}
-          </Text>
-          <ButtonLogin
-            source={IMAGE.ic_gg}
-            title={'Continue with  Google'}
-            style={{ marginTop: 48 }}
-          />
-          <ButtonLogin
-            source={IMAGE.ic_fb}
-            title={'Continue with  Google'}
-            style={{ marginTop: 8 }}
-          />
-        </View>
-
-        {/* <View
-          style={{
-            flex: 1,
-            // flexDirection: 'row',
-            width: '100%',
-            // paddingHorizontal: 16,
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            // justifyContent: 'space-between',
-          }}> */}
-        {/* <TextField label={'Email'} />
-          <TextField label={'Password'} containerStyle={{ marginTop: 16 }} /> */}
-        {/* <CircularProgress
-            value={9}
-            radius={30}
-            activeStrokeWidth={6}
-            inActiveStrokeWidth={8}
-            duration={1000}
-            activeStrokeColor={'#f39c12'}
-            progressValueColor={'#f39c12'}
-            inActiveStrokeColor={'#FDA758'}
-            inActiveStrokeOpacity={0.2}
-            maxValue={10}
-            onAnimationComplete={() => {
-              Alert.alert('callback');
-            }}
-          />
-          <CircularProgress
-            value={20}
-            radius={30}
-            activeStrokeWidth={6}
-            inActiveStrokeWidth={8}
-            duration={1000}
-            activeStrokeColor={'#573353'}
-            activeStrokeSecondaryColor={'#C25AFF'}
-            progressValueColor={'#573353'}
-            inActiveStrokeColor={'rgba(87, 51, 83, 0.5)'}
-            inActiveStrokeOpacity={0.2}
-            maxValue={20}
-          />
-          <CircularProgress
-            value={10}
-            radius={30}
-            activeStrokeWidth={6}
-            inActiveStrokeWidth={8}
-            duration={1000}
-            activeStrokeColor={'#F65B4E'}
-            progressValueColor={'#F65B4E'}
-            inActiveStrokeColor={'rgba(246, 91, 78, 0.5)'}
-            inActiveStrokeOpacity={0.2}
-            maxValue={20}
-          /> */}
-        {/* <View
-            style={{
-              flexDirection: 'row',
-              width: '100%',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-
-              // paddingHorizontal: 16,
-            }}>
-            {data.map(item => {
-              return (
-                <View
-                  style={[
-                    item.id === 2 && styles.leftHeart,
-                    item.id === 4 && styles.rightHeart,
-                    {
-                      width: '20%',
-                      paddingVertical: 16,
-                      backgroundColor: 'white',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    },
-                  ]}>
-                  <TouchableOpacity
-                    disabled={item.id === 3 ? true : false}
-                    onPress={() => {
-                      let temp = BOTTOMBAR.map(_item => {
-                        if (_item.image === item.image) {
-                          return Object.assign({}, _item, { select: true });
-                        } else {
-                          return Object.assign({}, _item, { select: false });
-                        }
-                      });
-                      setData(temp);
-                    }}>
-                    <Image
-                      source={item.select ? item.image : item.image_default}
-                      style={{
-                        width: 48,
-                        height: 28,
-                        resizeMode: 'contain',
-
-                        // opacity: 0.5,
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
-          </View> */}
-        {/* <View
-            style={{
-              width: Dimensions.get('screen').width * 0.2 + 16,
-              height: 84,
-              borderRadius: 100,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#FFF3E9',
-              position: 'absolute',
-              bottom: 32,
-            }}>
-            <TouchableOpacity
+            <Text
               style={{
-                width: 64,
-                height: 64,
-                borderRadius: 100,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'orange',
-                // position: 'absolute',
-                // bottom: 32,
-                borderWidth: 6,
-                borderColor: 'rgba(252, 157, 69, 0.4)',
+                fontSize: 24,
+                fontWeight: '700',
+                textAlign: 'center',
+                lineHeight: 32,
+                color: COLOR.purple,
               }}>
-              <Image
-                source={IMAGE.ic_plus}
-                style={{ width: 18, height: 18, resizeMode: 'contain' }}
+              {'WELCOME TO\n Monumental habits'.toUpperCase()}
+            </Text>
+            <ButtonLogin
+              source={IMAGE.ic_gg}
+              title={'Continue with  Google'}
+              style={{ marginTop: 48 }}
+            />
+            <ButtonLogin
+              source={IMAGE.ic_fb}
+              title={'Continue with  Google'}
+              style={{ marginTop: 8 }}
+            />
+          </View>
+
+          <View
+            style={{
+              backgroundColor: COLOR.white,
+              borderTopRightRadius: 20,
+              borderTopLeftRadius: 20,
+              marginTop: 24,
+              paddingVertical: 16,
+              alignItems: 'center',
+              paddingHorizontal: 16,
+              height: !keyboardStatus
+                ? Dimensions.get('window').height * 0.6
+                : Dimensions.get('window').height,
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: '400',
+                color: COLOR.purple,
+                lineHeight: 16,
+                marginLeft: 8,
+              }}>
+              Login With Account
+            </Text>
+            <KeyboardAvoidingView style={{ width: '100%', marginTop: 24 }}>
+              <TextField
+                ref={user}
+                isIcon={true}
+                isPassword={false}
+                disabled={false}
+                label={STRING.username}
+                isRequired={false}
+                imageLeft={IMAGE.ic_mail}
+                value={username}
+                onChangeText={(text: string) => {
+                  setUsername(text);
+                }}
+                style={{ backgroundColor: '#FFF6ED' }}
+                inputStyle={{ color: 'orange' }}
               />
-            </TouchableOpacity>
-          </View> */}
-        {/* </View> */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: COLOR.white,
-            borderTopRightRadius: 20,
-            borderTopLeftRadius: 20,
-            marginTop: 24,
-            paddingVertical: 16,
-            alignItems: 'center',
-            paddingHorizontal: 16,
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: '400',
-              color: COLOR.purple,
-              lineHeight: 16,
-              marginLeft: 8,
-            }}>
-            Login With Account
-          </Text>
-          <View style={{ width: '100%', marginTop: 24 }}>
-            <TextField
-              ref={user}
-              isIcon={true}
-              isPassword={false}
-              disabled={false}
-              label={STRING.username}
-              isRequired={false}
-              imageLeft={IMAGE.ic_mail}
-              value={username}
-              onChangeText={(text: string) => {
-                setUsername(text);
-              }}
-              style={{ backgroundColor: '#FFF6ED' }}
-              inputStyle={{ color: 'orange' }}
-            />
-            <TextField
-              ref={pass}
-              isIcon={true}
-              isPassword={true}
-              disabled={false}
-              label={STRING.password}
-              isRequired={false}
-              imageLeft={IMAGE.ic_lock}
-              value={password}
-              onChangeText={(text: string) => {
-                setPassword(text);
-              }}
-              style={{ backgroundColor: '#FFF6ED', marginTop: SIZE.h24 }}
-            />
-          </View>
+              <TextField
+                ref={pass}
+                isIcon={true}
+                isPassword={true}
+                disabled={false}
+                label={STRING.password}
+                isRequired={false}
+                imageLeft={IMAGE.ic_lock}
+                value={password}
+                onChangeText={(text: string) => {
+                  setPassword(text);
+                }}
+                style={{ backgroundColor: '#FFF6ED', marginTop: SIZE.h24 }}
+              />
+            </KeyboardAvoidingView>
 
-          <View
-            style={[
-              styles.viewRow,
-              {
-                marginVertical: 16,
-                width: '100%',
-                justifyContent: 'space-between',
-              },
-            ]}>
-            <View style={styles.viewRow}>
-              <TouchableOpacity onPress={onRememberLogin}>
-                <Image
-                  source={
-                    !isCheck
-                      ? IMAGE.ic_checkSquare_empty
-                      : IMAGE.ic_checkbox_fill
-                  }
-                  style={[
-                    styles.icon20,
-                    { tintColor: !isCheck ? COLOR.orange : COLOR.orange },
-                  ]}
-                />
-              </TouchableOpacity>
-              <Text style={styles.textRemember}>{'Remember login'}</Text>
+            <View
+              style={[
+                styles.viewRow,
+                {
+                  marginVertical: 16,
+                  width: '100%',
+                  justifyContent: 'space-between',
+                },
+              ]}>
+              <View style={styles.viewRow}>
+                <TouchableOpacity onPress={onRememberLogin}>
+                  <Image
+                    source={
+                      !isCheck
+                        ? IMAGE.ic_checkSquare_empty
+                        : IMAGE.ic_checkbox_fill
+                    }
+                    style={[
+                      styles.icon20,
+                      { tintColor: !isCheck ? COLOR.orange : COLOR.orange },
+                    ]}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.textRemember}>{'Remember login'}</Text>
+              </View>
+              {!stringIsEmpty(iconBio) && iconBio !== 'false' && (
+                <TouchableOpacity
+                  style={[styles.viewRow, { alignItems: 'center' }]}
+                  onPress={onPressBioLogin}>
+                  <Image
+                    source={IMAGE.ic_bioMetrics}
+                    style={[
+                      styles.icon20,
+                      {
+                        tintColor: !isCheck ? COLOR.orange : COLOR.orange,
+                        width: 16,
+                        height: 16,
+                      },
+                    ]}
+                  />
+                  <Text style={styles.textRemember}>{'Biometric login'}</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            {!stringIsEmpty(iconBio) && iconBio !== 'false' && (
-              <TouchableOpacity
-                style={[styles.viewRow, { alignItems: 'center' }]}
-                onPress={onPressBioLogin}>
-                <Image
-                  source={IMAGE.ic_bioMetrics}
-                  style={[
-                    styles.icon20,
-                    {
-                      tintColor: !isCheck ? COLOR.orange : COLOR.orange,
-                      width: 16,
-                      height: 16,
-                    },
-                  ]}
-                />
-                <Text style={styles.textRemember}>{'Biometric login'}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
 
-          <NormalButton
-            label="Login"
-            style={{
-              backgroundColor: '#FDA758',
-              paddingVertical: 8,
-              borderRadius: 12,
-            }}
-            labelStyle={{
-              fontWeight: '700',
-              color: COLOR.purple,
-              fontSize: 16,
-            }}
-            onPress={() => {
-              // navigation.navigate(MainRoutes.TabNavigation);
-              onPressLogin();
-            }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(MainRoutes.ForgotPass);
-            }}
-            style={{ alignItems: 'center', marginTop: 16 }}>
-            <Text
+            <NormalButton
+              label="Login"
               style={{
-                fontWeight: '400',
+                backgroundColor: '#FDA758',
+                paddingVertical: 8,
+                borderRadius: 12,
+              }}
+              labelStyle={{
+                fontWeight: '700',
                 color: COLOR.purple,
-                fontSize: 14,
-                lineHeight: 14,
-              }}>
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 6,
-            }}>
-            <Text
-              style={{
-                fontWeight: '400',
-                color: COLOR.purple,
-                fontSize: 14,
-                lineHeight: 14,
-              }}>
-              {'Don’t have an account? '}
-            </Text>
+                fontSize: 16,
+              }}
+              onPress={() => {
+                // navigation.navigate(MainRoutes.TabNavigation);
+                onPressLogin();
+              }}
+            />
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate(MainRoutes.SignUp);
-              }}>
+                navigation.navigate(MainRoutes.ForgotPass);
+              }}
+              style={{ alignItems: 'center', marginTop: 16 }}>
               <Text
                 style={{
-                  fontWeight: '700',
+                  fontWeight: '400',
                   color: COLOR.purple,
                   fontSize: 14,
                   lineHeight: 14,
                 }}>
-                Sign up
+                Forgot Password?
               </Text>
             </TouchableOpacity>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 6,
+              }}>
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: COLOR.purple,
+                  fontSize: 14,
+                  lineHeight: 14,
+                }}>
+                {'Don’t have an account? '}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate(MainRoutes.SignUp);
+                }}>
+                <Text
+                  style={{
+                    fontWeight: '700',
+                    color: COLOR.purple,
+                    fontSize: 14,
+                    lineHeight: 14,
+                  }}>
+                  Sign up
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </ImageBackground>
-    </ScrollView>
+    </View>
   );
 };
 

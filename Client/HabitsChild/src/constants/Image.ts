@@ -26,6 +26,46 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_home.png'),
     name: '/ic_home.png',
   },
+  ic_avt: {
+    path: require('../assets/images/ic_avt.png'),
+    name: '/ic_avt.png',
+  },
+  ic_avt1: {
+    path: require('../assets/images/ic_avt1.png'),
+    name: '/ic_avt1.png',
+  },
+  ic_repass: {
+    path: require('../assets/images/ic_repass.png'),
+    name: '/ic_repass.png',
+  },
+  ic_delete_home: {
+    path: require('../assets/images/ic_delete_home.png'),
+    name: '/ic_delete_home.png',
+  },
+  ic_edit_home: {
+    path: require('../assets/images/ic_edit_home.png'),
+    name: '/ic_edit_home.png',
+  },
+  ic_enter: {
+    path: require('../assets/images/ic_enter.png'),
+    name: '/ic_enter.png',
+  },
+  ic_avt2: {
+    path: require('../assets/images/ic_avt2.png'),
+    name: '/ic_avt2.png',
+  },
+  ic_avt3: {
+    path: require('../assets/images/ic_avt3.png'),
+    name: '/ic_avt3.png',
+  },
+  ic_avt4: {
+    path: require('../assets/images/ic_avt4.png'),
+    name: '/ic_avt4.png',
+  },
+  ic_avt5: {
+    path: require('../assets/images/ic_avt5.png'),
+    name: '/ic_avt5.png',
+  },
   ic_course: {
     path: require('../assets/images/ic_course.png'),
     name: '/ic_course.png',
@@ -114,10 +154,7 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_menu.png'),
     name: '/ic_menu.png',
   },
-  ic_avt: {
-    path: require('../assets/images/ic_avt.png'),
-    name: '/ic_avt.png',
-  },
+
   ic_back: {
     path: require('../assets/images/ic_back.png'),
     name: '/ic_back.png',
@@ -265,6 +302,14 @@ let IMAGE: IMAGEProps = {
   ic_fullname: {
     path: require('../assets/images/ic_fullname.png'),
     name: '/ic_fullname.png',
+  },
+  img_child4: {
+    path: require('../assets/images/img_child4.png'),
+    name: '/img_child4.png',
+  },
+  ic_video: {
+    path: require('../assets/images/ic_video.png'),
+    name: '/ic_video.png',
   },
 };
 

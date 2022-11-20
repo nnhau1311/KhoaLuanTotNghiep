@@ -8,7 +8,7 @@ interface HeaderProps {
   iconRight: boolean;
   imageLeft: any;
   imageRight: any;
-  title: string;
+  title?: string;
   styleLeft: any;
   styleRight: any;
   onPressLeft: Function;
@@ -29,17 +29,18 @@ const Header = (props: HeaderProps) => {
   } = props;
   return (
     <View style={styles.container}>
-      {iconLeft && (
-        <View style={{ width: '20%', justifyContent: 'center' }}>
+      <View style={{ width: '20%', justifyContent: 'center' }}>
+        {iconLeft && (
           <TouchableOpacity
             onPress={() => {
               onPressLeft && onPressLeft();
             }}
-            style={styles.circle}>
+            style={[styles.circle, { backgroundColor: 'transparent' }]}>
             <Image source={imageLeft} style={[STYLES.icon24, styleLeft]} />
           </TouchableOpacity>
-        </View>
-      )}
+        )}
+      </View>
+
       <Text
         numberOfLines={1}
         style={[

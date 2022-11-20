@@ -11,17 +11,19 @@ export async function get(path: string): Promise<any> {
     },
   };
   let result = { error: false, message: '' };
+  console.log('`${API_DOMAIN}/${path}`', `${API_DOMAIN}/${path}`);
   try {
     result = await axios.get(`${API_DOMAIN}/${path}`, config);
     // Logger.info(`API Result: ${result}`);
     return result;
   } catch (error: any) {
     Logger.error(`API Error: ${error}`);
-    console.log('result1213', error.response.data);
-    if (error?.response?.data?.StatusCode >= 500) {
+    console.log('result1213Delte', error.response.data);
+    if (error?.response?.data?.StatusCode > 500) {
       result.message = STRING.apiError;
       result.error = true;
     } else {
+      console.log('1212123');
       result.message = error?.response?.data?.message[0];
       result.error = true;
     }
@@ -45,7 +47,7 @@ export async function post(path: string, data: any): Promise<any> {
   } catch (error: any) {
     Logger.error(`API Error: ${error}`);
     console.log('result1213', error.response.data);
-    if (error?.response?.data?.StatusCode >= 500) {
+    if (error?.response?.data?.StatusCode > 500) {
       result.message = STRING.apiError;
       result.error = true;
     } else {
@@ -80,7 +82,35 @@ export async function postAthen(path: string, data: any): Promise<any> {
   }
   return result;
 }
+export async function getPage(path: string, data: any): Promise<any> {
+  Logger.info(`API Fetching: ${API_DOMAIN}/${path}`);
+  console.log('dataaatokennn', userData.token);
 
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + userData.token,
+    },
+  };
+
+  let result = { error: false, message: '' };
+  try {
+    result = await axios.post(`${API_DOMAIN}/${path}`, data, config);
+    // Logger.info(`API Result: ${result}`);
+    return result;
+  } catch (error: any) {
+    Logger.error(`API Error: ${error}`);
+    console.log('result1213', error.response.data);
+    if (error?.response?.data?.StatusCode >= 500) {
+      result.message = STRING.apiError;
+      result.error = true;
+    } else {
+      result.message = error?.response?.data?.message[0];
+      result.error = true;
+    }
+  }
+  return result;
+}
 export async function postFrom(path: string, data: {}): Promise<any> {
   const config = {
     headers: {
@@ -99,16 +129,6 @@ export async function postFrom(path: string, data: {}): Promise<any> {
     .catch(err => {
       return err.response.data;
     });
-}
-
-export async function uploadFile(path: string, data: any): Promise<any> {
-  const config = {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Accept: 'application/json',
-    },
-  };
-  return await axios.post(`${API_DOMAIN}/${path}`, data, config);
 }
 
 export type HttpData<T> = {

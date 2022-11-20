@@ -22,10 +22,12 @@ import Header from '../../components/header/Header';
 import { userData } from '../../configs';
 import { COLOR, stringIsEmpty } from '../../constants';
 import { IMAGE } from '../../constants/Image';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { MainNavigationProp } from '../../routes/type';
 import { CommonActions } from '@react-navigation/native';
-import { logoutAction } from '../../redux/reducer/userReducer';
+import { getInforAction, logoutAction } from '../../redux/reducer/userReducer';
+import { MainRoutes } from '../../routes/routes';
+import { Status } from '../../models';
 const optionalConfigObject = {
   unifiedErrors: false,
   passcodeFallback: false, // if true is passed, itwill allow isSupported to return an error if the device is not enrolled in touch id/face id etc. Otherwise, it will just tell you what method is supported, even if the user is not enrolled.  (default false)
@@ -332,6 +334,38 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
       // setLoading(false);
     }
   };
+
+  const messageInfor = useAppSelector(
+    state => state.userReducer.messageInforUser,
+  );
+  const statusInfor = useAppSelector(
+    state => state.userReducer.statusInforUser,
+  );
+  const dataInfor = useAppSelector(state => state.userReducer.InforUserData);
+  useEffect(() => {
+    dispatch(getInforAction());
+  }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('first');
+      dispatch(getInforAction());
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+  useEffect(() => {
+    if (statusInfor === Status.success && dataInfor?.StatusCode === '200') {
+      console.log('daataaInfor', dataInfor.Data);
+    } else if (
+      statusInfor === Status.success &&
+      dataInfor?.StatusCode !== '200'
+    ) {
+      Alert.alert('Notification', 'Get Information User Error');
+    }
+    if (statusInfor === Status.error && messageInfor) {
+      Alert.alert('Notification', messageInfor);
+    }
+  }, [statusInfor]);
   return (
     <BackgroundApp>
       <Header
@@ -392,11 +426,16 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
                     lineHeight: 26,
                     // marginLeft: 16,
                   }}>
-                  {'thaianhhao@gmail.com'}
+                  {dataInfor?.Data.email}
                 </Text>
               </View>
               {/* <View style={{ backgroundColor: 'red' }}> */}
               <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate(MainRoutes.ViewProfile, {
+                    dataProfile: dataInfor?.Data,
+                  });
+                }}
                 style={{
                   width: '25%',
                   paddingVertical: 12,
@@ -433,6 +472,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           General
         </Text>
         <ItemButton
+          onPress={() => {}}
           image={IMAGE.ic_face}
           title={'Login with biometrics'}
           switcher
@@ -445,7 +485,9 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{}}
           arrow
-          onPress={() => {}}
+          onPress={() => {
+            navigation.navigate(MainRoutes.ChangePassword);
+          }}
         />
         <ItemButton
           image={IMAGE.ic_logout}
@@ -475,7 +517,9 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{}}
           arrow
-          onPress={() => {}}
+          onPress={() => {
+            Linking.openURL(`tel:${'0944590453'}`);
+          }}
         />
         <ItemButton
           image={IMAGE.ic_contact}
@@ -483,7 +527,9 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           switcher={false}
           style={{ marginBottom: 16 }}
           arrow
-          onPress={() => {}}
+          onPress={() => {
+            navigation.navigate(MainRoutes.About);
+          }}
         />
       </ScrollView>
     </BackgroundApp>

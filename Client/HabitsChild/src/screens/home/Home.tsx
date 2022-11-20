@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { BottomSheet, SIZE } from '@ddc-fis-hcm/react-native-sdk';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Text,
   View,
@@ -9,50 +12,149 @@ import {
   ImageBackground,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Header from '../../components/header/Header';
+import Loading from '../../components/loading/Loading';
 import TabHorizontal from '../../components/tab/TabHorizontal';
 import { COLOR } from '../../constants';
 import { IMAGE } from '../../constants/Image';
 import { STYLES } from '../../constants/Style';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ItemHabit, Status } from '../../models';
-import { getListHabitsAction } from '../../redux/reducer/habitsReducer';
+import { HabitData, ItemHabit, Status } from '../../models';
+import {
+  deleteHabitAction,
+  getListHabitsAction,
+  resetStateDeleteHabit,
+} from '../../redux/reducer/habitsReducer';
 import { MainRoutes } from '../../routes/routes';
 import { MainNavigationProp } from '../../routes/type';
 
 interface HomeProps {}
 
 const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
+  const isFocused = useIsFocused();
+  const [image, setImage] = useState(IMAGE.ic_avt);
+  const [itemHabit, setItemHabit] = useState<HabitData>();
+  useEffect(() => {
+    if (isFocused) {
+      getAvt();
+    }
+  }, [isFocused]);
+
+  const getAvt = async () => {
+    try {
+      const jsonData = await AsyncStorage.getItem('image');
+      const data = JSON.parse(jsonData);
+      setImage(data.img);
+    } catch (e) {
+      console.log('getDataError: ', e);
+    }
+  };
   const [dataHabits, setDataHabits] = useState([]);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [isEnd, setIsEnd] = useState(false);
+  const [isLoadMore, setIsLoadmore] = useState(false);
   const dispatch = useAppDispatch();
   const status = useAppSelector(state => state.habitsReducer.statusListHabits);
   const message = useAppSelector(
     state => state.habitsReducer.messageListHabits,
   );
   const result = useAppSelector(state => state.habitsReducer.listHabitsData);
+  const statusDeleteHabit = useAppSelector(
+    state => state.habitsReducer.statusDeleteHabits,
+  );
+  const messageDeleteHabit = useAppSelector(
+    state => state.habitsReducer.messageDeleteHabits,
+  );
+  const resultDeleteHabit = useAppSelector(
+    state => state.habitsReducer.deleteHabitData,
+  );
   useEffect(() => {
-    dispatch(getListHabitsAction());
+    dispatch(getListHabitsAction({ pageNumber: page }));
   }, []);
   useEffect(() => {
     if (status === Status.success && result?.StatusCode === '200') {
-      setDataHabits(result.Data.content);
+      console.log('aaaaaaaaaaaâ', result.Data.content.length);
+      if (
+        result.Data.content.length > 0 &&
+        result.Data.content.length % 10 == 0
+      ) {
+        setIsLoadmore(true);
+      } else {
+        setIsLoadmore(false);
+      }
+      if (page === 0) {
+        setDataHabits(result.Data.content);
+      } else {
+        setDataHabits(dataHabits?.concat(result.Data.content));
+      }
+      setIsEnd(false);
     } else if (status === Status.success && result?.StatusCode !== '200') {
       Alert.alert('Notification', 'Get list habits error');
+      setIsEnd(false);
     }
     if (status === Status.error && message) {
+      setIsEnd(false);
       Alert.alert('Notification', message);
     }
   }, [status]);
+  const bottomSheet = useRef<any>();
+  useEffect(() => {
+    if (
+      statusDeleteHabit === Status.success &&
+      resultDeleteHabit?.StatusCode === '200'
+    ) {
+      setLoading(false);
+      dispatch(resetStateDeleteHabit());
+      dispatch(getListHabitsAction({ pageNumber: page }));
+      Alert.alert('Notification', 'Delete Habit success');
+    } else if (
+      statusDeleteHabit === Status.success &&
+      resultDeleteHabit?.StatusCode !== '200'
+    ) {
+      setLoading(false);
+      dispatch(resetStateDeleteHabit());
+      Alert.alert('Notification', 'Delete Habit error');
+    }
+    if (statusDeleteHabit === Status.error && messageDeleteHabit) {
+      setLoading(false);
+      dispatch(resetStateDeleteHabit());
+      Alert.alert('Notification', message);
+    }
+  }, [statusDeleteHabit]);
+  const onEndReached = () => {
+    if (isLoadMore) {
+      setPage(page + 1);
+      setIsEnd(true);
+    }
+  };
+  useEffect(() => {
+    dispatch(getListHabitsAction({ pageNumber: page }));
+  }, [page]);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('home');
+      dispatch(getListHabitsAction({ pageNumber: 0 }));
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   return (
     <View style={styles.container}>
+      {loading && <Loading />}
       <Header
-        onPressLeft={() => {}}
-        onPressRight={() => {}}
+        onPressLeft={() => {
+          bottomSheet.current.open();
+        }}
+        onPressRight={() => {
+          navigation.navigate(MainRoutes.Information);
+        }}
         iconLeft
         iconRight
         imageLeft={IMAGE.ic_menu}
-        imageRight={IMAGE.ic_avt}
+        imageRight={image}
         title="Homepage"
         styleLeft={{ width: 44, height: 44 }}
         styleRight={{ width: 44, height: 44 }}
@@ -91,23 +193,36 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
             style={{ width: '100%', height: '100%' }}>
             <View style={{ paddingHorizontal: 16 }}>
               <TabHorizontal
+                dataDocument={[]}
                 data={[]}
                 onChangeTab={() => {
                   console.log('tabbbbbbbbbbb', dataHabits);
                 }}
               />
-
+            </View>
+            <View style={{ flex: 1, paddingHorizontal: 16 }}>
               <FlatList
                 showsVerticalScrollIndicator={false}
                 data={dataHabits}
                 keyExtractor={item => {
-                  item.id.toString();
+                  item?.id.toString();
                 }}
-                renderItem={({ item }) => {
+                onEndReached={onEndReached}
+                ListFooterComponent={
+                  isEnd ? (
+                    <ActivityIndicator size="small" color={COLOR.orange} />
+                  ) : null
+                }
+                renderItem={({ item, index }) => {
+                  console.log('INDEXHOME', index);
                   return (
                     <TouchableOpacity
+                      key={index.toString() + ''}
                       onPress={() => {
-                        navigation.navigate(MainRoutes.HaibitDetail);
+                        console.log('idddddddddddd', item.id);
+                        navigation.navigate(MainRoutes.HaibitDetail, {
+                          userHabitsId: item?.id,
+                        });
                       }}
                       style={{
                         width: '100%',
@@ -148,10 +263,14 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                             lineHeight: 24,
                             marginLeft: 12,
                           }}>
-                          {item?.habitsId}
+                          {item?.habitsName}
                         </Text>
                       </View>
                       <TouchableOpacity
+                        onPress={() => {
+                          setItemHabit(item);
+                          bottomSheet.current?.open();
+                        }}
                         style={{ width: '20%', alignItems: 'flex-end' }}>
                         <Image source={IMAGE.ic_more} style={[STYLES.icon24]} />
                       </TouchableOpacity>
@@ -163,6 +282,30 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
           </ImageBackground>
         </View>
       </View>
+      <BottomSheet
+        ref={bottomSheet}
+        isShowHeaderRight={false}
+        styleLabel={styles.label}
+        label={'Thao tác'}
+        onClose={() => {}}>
+        <View>
+          <TouchableOpacity style={styles.btn} onPress={() => {}}>
+            <Image source={IMAGE.ic_edit_home} style={styles.img} />
+            <Text style={styles.txt}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => {
+              console.log('idddddddd', itemHabit?.id);
+              setLoading(true);
+              bottomSheet.current?.close();
+              dispatch(deleteHabitAction({ userHabitsId: itemHabit?.id }));
+            }}>
+            <Image source={IMAGE.ic_delete_home} style={styles.img} />
+            <Text style={styles.txt}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -182,5 +325,32 @@ const styles = StyleSheet.create({
   },
   rightHeart: {
     borderTopLeftRadius: 16,
+  },
+  btn: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+
+    borderColor: COLOR.lightblue,
+  },
+  img: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  txt: {
+    fontWeight: '400',
+    fontSize: 18,
+    color: COLOR.black,
+    lineHeight: 24,
+    marginLeft: 12,
+  },
+  label: {
+    fontSize: SIZE[16],
+    fontWeight: '700',
+    color: COLOR.purple,
+    lineHeight: SIZE[22],
   },
 });

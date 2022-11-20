@@ -50,7 +50,7 @@ const ViewCourse = (
         }}
       />
       <View style={{ flex: 1 }}>
-        <StatusBar barStyle={'dark-content'} hidden={true} />
+        <StatusBar barStyle={'dark-content'} hidden={false} />
         {loading && (
           <View style={[styles.container]}>
             <ActivityIndicator size="large" color="orange" />

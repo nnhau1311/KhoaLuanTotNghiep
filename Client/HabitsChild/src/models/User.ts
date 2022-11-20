@@ -1,28 +1,39 @@
-export interface UserModel {
-  code: boolean;
+export interface inforUserModel {
+  errorCode: string;
   message: string;
-  message1: number;
-  calendarURL: string;
-  hdHomeURL: string;
-  fullName: string;
-  linkMFA: string;
-  isMFA: string;
-  refreshToken: string;
-  mapKey: string;
-  medicalDescriptionLink: string;
-  wfhRadius: string;
-  email: string;
-  dataELearning: {
-    userId: number;
-    userName: string;
-    name: string;
-    avarta: string;
+  refCode: string;
+  Success: true;
+  Data: {
+    id: string;
+    sessionId: string;
+    username: string;
+    password: string;
+    status: number;
+    expirationJWTDate: string;
+    createDate: string;
+    updateDate: string;
+    role: string;
     email: string;
-    phone: string;
-    gender: string;
-    birthday: string;
-    location: string;
+    userFullName: string;
   };
-  enableElearning: boolean;
-  elearningURL: string;
+  violations: string;
+  StatusCode: string;
+}
+export interface ChangePassModel {
+  errorCode: string;
+  message: string;
+  refCode: string;
+  Success: true;
+  Data: string;
+  violations: string;
+  StatusCode: string;
+}
+export interface UpdateInforModel {
+  errorCode: string;
+  message: string;
+  refCode: string;
+  Success: true;
+  Data: string;
+  violations: string;
+  StatusCode: string;
 }

@@ -1,10 +1,28 @@
-import { LoginDTO, ResetPassDTO, SignUpDTO } from '../../dto';
+import {
+  ChangePassDTO,
+  LoginDTO,
+  ResetPassDTO,
+  SignUpDTO,
+  UpdateInforDTO,
+} from '../../dto';
 import { HttpData } from '../../helpers/apiHelper';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Status } from '../../models/Status';
-import { UserModel } from '../../models';
+import {
+  ChangePassModel,
+  inforUserModel,
+  UpdateInforModel,
+  UserModel,
+} from '../../models';
 import { AppThunk } from '../store';
-import { loginAPI, resetPassAPI, signUpAPI } from '../api/userApi';
+import {
+  changePassAPI,
+  getInforUser,
+  loginAPI,
+  resetPassAPI,
+  signUpAPI,
+  UpdateInforAPI,
+} from '../api/userApi';
 import { LoginModel, ResetPassModel, SignUpModel } from '../../models/Login';
 
 interface LoginState {
@@ -40,10 +58,51 @@ const resetPassState: ResetPassState = {
   resetPassData: undefined,
   messageResetPass: '',
 };
-const initialState: LoginState & SignUpState & ResetPassState = {
+interface InforUserState {
+  statusInforUser: Status;
+  InforUserData: inforUserModel | undefined;
+  messageInforUser: string;
+}
+
+const inforUserState: InforUserState = {
+  statusInforUser: Status.idle,
+  InforUserData: undefined,
+  messageInforUser: '',
+};
+interface ChangePassState {
+  statusChangePass: Status;
+  changePassData: ChangePassModel | undefined;
+  messageChangePass: string;
+}
+
+const changePassState: ChangePassState = {
+  statusChangePass: Status.idle,
+  changePassData: undefined,
+  messageChangePass: '',
+};
+interface UpdateInforState {
+  statusUpdateInfor: Status;
+  updateInforData: UpdateInforModel | undefined;
+  messageUpdateInfor: string;
+}
+
+const updateInforState: UpdateInforState = {
+  statusUpdateInfor: Status.idle,
+  updateInforData: undefined,
+  messageUpdateInfor: '',
+};
+const initialState: LoginState &
+  SignUpState &
+  ResetPassState &
+  InforUserState &
+  ChangePassState &
+  UpdateInforState = {
   ...loginState,
   ...signUpState,
   ...resetPassState,
+  ...inforUserState,
+  ...changePassState,
+  ...updateInforState,
 };
 export const userSlice = createSlice({
   name: 'user',
@@ -107,6 +166,70 @@ export const userSlice = createSlice({
       state.messageResetPass = '';
       state.statusResetPass = Status.idle;
     },
+    inforUser: (
+      state: InforUserState,
+      action: PayloadAction<inforUserModel | undefined>,
+    ) => {
+      state.InforUserData = action.payload;
+      state.statusInforUser = Status.success;
+    },
+    messageInforUser: (
+      state: InforUserState,
+      action: PayloadAction<string>,
+    ) => {
+      state.messageInforUser = action.payload;
+    },
+    statusInforUser: (state: InforUserState, action: PayloadAction<Status>) => {
+      state.statusInforUser = action.payload;
+    },
+    changePass: (
+      state: ChangePassState,
+      action: PayloadAction<ChangePassModel | undefined>,
+    ) => {
+      state.changePassData = action.payload;
+      state.statusChangePass = Status.success;
+    },
+    messageChangePass: (
+      state: ChangePassState,
+      action: PayloadAction<string>,
+    ) => {
+      state.messageChangePass = action.payload;
+    },
+    statusChangePass: (
+      state: ChangePassState,
+      action: PayloadAction<Status>,
+    ) => {
+      state.statusChangePass = action.payload;
+    },
+    resetStateChangePass: state => {
+      state.changePassData = undefined;
+      state.messageChangePass = '';
+      state.statusChangePass = Status.idle;
+    },
+    updateInfor: (
+      state: UpdateInforState,
+      action: PayloadAction<UpdateInforModel | undefined>,
+    ) => {
+      state.updateInforData = action.payload;
+      state.statusUpdateInfor = Status.success;
+    },
+    messageUpdateInfor: (
+      state: UpdateInforState,
+      action: PayloadAction<string>,
+    ) => {
+      state.messageUpdateInfor = action.payload;
+    },
+    statusUpdateInfor: (
+      state: UpdateInforState,
+      action: PayloadAction<Status>,
+    ) => {
+      state.statusUpdateInfor = action.payload;
+    },
+    resetStateUpdateInfor: state => {
+      state.updateInforData = undefined;
+      state.messageUpdateInfor = '';
+      state.statusUpdateInfor = Status.idle;
+    },
   },
 });
 
@@ -154,6 +277,49 @@ export const resetPassAction =
       dispatch(userSlice.actions.messageResetPass(result?.message));
     }
   };
+export const ChangePassAction =
+  ({ ...input }: ChangePassDTO): AppThunk =>
+  async dispatch => {
+    dispatch(userSlice.actions.statusChangePass(Status.loading));
+
+    const result: HttpData<ChangePassModel> = await changePassAPI(input);
+    console.log('reuslllllll', result);
+    if (result.error) {
+      dispatch(userSlice.actions.statusChangePass(Status.error));
+      dispatch(userSlice.actions.messageChangePass(result?.message));
+    } else {
+      dispatch(userSlice.actions.changePass(result.data));
+      dispatch(userSlice.actions.messageChangePass(result?.message));
+    }
+  };
+export const UpdateInforAction =
+  ({ ...input }: UpdateInforDTO): AppThunk =>
+  async dispatch => {
+    dispatch(userSlice.actions.statusUpdateInfor(Status.loading));
+
+    const result: HttpData<UpdateInforModel> = await UpdateInforAPI(input);
+    console.log('reuslllllll', result);
+    if (result.error) {
+      dispatch(userSlice.actions.statusUpdateInfor(Status.error));
+      dispatch(userSlice.actions.messageUpdateInfor(result?.message));
+    } else {
+      dispatch(userSlice.actions.updateInfor(result.data));
+      dispatch(userSlice.actions.messageUpdateInfor(result?.message));
+    }
+  };
+export const getInforAction = (): AppThunk => async dispatch => {
+  dispatch(userSlice.actions.statusInforUser(Status.loading));
+
+  const result: HttpData<inforUserModel> = await getInforUser();
+
+  if (result.error) {
+    dispatch(userSlice.actions.statusInforUser(Status.error));
+    dispatch(userSlice.actions.messageInforUser(result?.message));
+  } else {
+    dispatch(userSlice.actions.inforUser(result.data));
+    dispatch(userSlice.actions.messageInforUser(result?.message));
+  }
+};
 export const logoutAction = (): AppThunk => async dispatch => {
   console.log('logoutttt');
   dispatch(userSlice.actions.logout());
@@ -164,7 +330,14 @@ export const resetStateSignUpAction = (): AppThunk => async dispatch => {
 export const resetStateResetPassAction = (): AppThunk => async dispatch => {
   dispatch(userSlice.actions.resetStateResetPass());
 };
-export const { login, signUp } = userSlice.actions;
+export const resetStateChangePassAction = (): AppThunk => async dispatch => {
+  dispatch(userSlice.actions.resetStateChangePass());
+};
+export const resetStateUpdateInforAction = (): AppThunk => async dispatch => {
+  dispatch(userSlice.actions.resetStateUpdateInfor());
+};
+export const { login, signUp, inforUser, resetPass, updateInfor } =
+  userSlice.actions;
 
 // export const selectUser = (state: RootState) => state.userReducer;
 

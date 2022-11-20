@@ -21,7 +21,7 @@ import {
 import { SIZE } from '@ddc-fis-hcm/react-native-sdk/react-native-sdk-source/styles/size';
 import { COLOR } from '../../constants';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Status } from '../../models';
+import { HabitData, HabitDataManager, Status } from '../../models';
 import {
   addHabitsAction,
   getListHabitsManagerAction,
@@ -35,7 +35,7 @@ const AddHabits = (
   { navigation }: MainNavigationProp,
   props: AddHabitsProps,
 ) => {
-  const [dataHabits, setDataHabits] = useState([]);
+  const [dataHabits, setDataHabits] = useState<Array<HabitDataManager>>();
   const [nameHabit, setNameHabit] = useState('');
   const [idHabits, setIdHabits] = useState('');
   const [numberFinish, setNumberFinsh] = useState(0);
@@ -80,12 +80,15 @@ const AddHabits = (
     }
   }, [status]);
   useEffect(() => {
-    if (statusAddHabits === Status.success && result?.StatusCode === '200') {
+    if (
+      statusAddHabits === Status.success &&
+      resultAddHabits?.StatusCode === '200'
+    ) {
       dispatch(resetStateAddHabits());
       Alert.alert('Notification', 'Add new habit success');
     } else if (
       statusAddHabits === Status.success &&
-      result?.StatusCode !== '200'
+      resultAddHabits?.StatusCode !== '200'
     ) {
       dispatch(resetStateAddHabits());
       Alert.alert('Notification', 'Add new habit error');
@@ -109,6 +112,9 @@ const AddHabits = (
   return (
     <BackgroundApp>
       <Header
+        // imageRight={{}}
+        onPressRight={() => {}}
+        styleLeft={{}}
         iconLeft
         iconRight
         imageLeft={IMAGE.ic_back}
@@ -392,7 +398,7 @@ const AddHabits = (
           style={{
             height: Dimensions.get('screen').height * 0.4,
           }}>
-          {dataHabits.map((item, index) => {
+          {dataHabits?.map((item, index) => {
             return (
               <View>
                 <TouchableOpacity
@@ -401,7 +407,7 @@ const AddHabits = (
                     console.log('itemmmmm', item.habitsName);
                     setNameHabit(item.habitsName);
                     setIdHabits(item?.id);
-                    setNumberFinsh(item?.numberDateExecute);
+                    setNumberFinsh(item.numberDateExecute);
                     bottomSheet?.current?.close();
                   }}
                   style={[
@@ -496,6 +502,7 @@ const styles = StyleSheet.create({
     borderColor: COLOR.gray2,
     alignItems: 'center',
     flexDirection: 'row',
+    backgroundColor: COLOR.bg,
   },
   txtHabit: {
     color: COLOR.black1,
