@@ -8,6 +8,8 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import BackgroundApp from '../../components/background/BackgroundApp';
 import Header from '../../components/header/Header';
@@ -63,19 +65,37 @@ const AddHabits = (
     state => state.habitsReducer.addHabitsData,
   );
   useEffect(() => {
-    dispatch(getListHabitsManagerAction());
+    dispatch(getListHabitsManagerAction({ pageNumber: 0, pageSize: 10 }));
   }, []);
   useEffect(() => {
     if (status === Status.success && result?.StatusCode === '200') {
       console.log('dataaaaaaaManager', result.Data.content);
-      let tmp = result.Data.content.map(item => {
-        return Object.assign({}, item, { isSelected: false });
-      });
-      setDataHabits(tmp);
+      if (
+        result.Data.content.length > 0 &&
+        result.Data.content.length % 10 == 0
+      ) {
+        setIsLoadmore(true);
+      } else {
+        setIsLoadmore(false);
+      }
+      if (page === 0) {
+        let tmp = result.Data.content.map(item => {
+          return Object.assign({}, item, { isSelected: false });
+        });
+        setDataHabits(tmp);
+      } else {
+        let tmp = result.Data.content.map(item => {
+          return Object.assign({}, item, { isSelected: false });
+        });
+        setDataHabits(dataHabits?.concat(tmp));
+      }
+      setIsEnd(false);
     } else if (status === Status.success && result?.StatusCode !== '200') {
+      setIsEnd(false);
       Alert.alert('Notification', 'Get list habits error');
     }
     if (status === Status.error && message) {
+      setIsEnd(false);
       Alert.alert('Notification', message);
     }
   }, [status]);
@@ -85,7 +105,14 @@ const AddHabits = (
       resultAddHabits?.StatusCode === '200'
     ) {
       dispatch(resetStateAddHabits());
-      Alert.alert('Notification', 'Add new habit success');
+      Alert.alert('Notification', 'Add new habit success', [
+        {
+          text: 'Ok',
+          onPress: () => {
+            navigation.goBack();
+          },
+        },
+      ]);
     } else if (
       statusAddHabits === Status.success &&
       resultAddHabits?.StatusCode !== '200'
@@ -108,7 +135,18 @@ const AddHabits = (
       setToDate(_toDay.toString());
     }
   }, [fromDate]);
-
+  const [isEnd, setIsEnd] = useState(false);
+  const [isLoadMore, setIsLoadmore] = useState(false);
+  const [page, setPage] = useState(0);
+  const onEndReached = () => {
+    if (isLoadMore) {
+      setPage(page + 1);
+      setIsEnd(true);
+    }
+  };
+  useEffect(() => {
+    dispatch(getListHabitsManagerAction({ pageNumber: page, pageSize: 10 }));
+  }, [page]);
   return (
     <BackgroundApp>
       <Header
@@ -398,7 +436,96 @@ const AddHabits = (
           style={{
             height: Dimensions.get('screen').height * 0.4,
           }}>
-          {dataHabits?.map((item, index) => {
+          <FlatList
+            keyExtractor={item => item?.id}
+            data={dataHabits ? dataHabits : []}
+            onEndReached={onEndReached}
+            ListFooterComponent={
+              isEnd ? (
+                <ActivityIndicator size="small" color={COLOR.orange} />
+              ) : null
+            }
+            renderItem={({ item, index }) => {
+              return (
+                <View>
+                  <TouchableOpacity
+                    disabled={false}
+                    onPress={() => {
+                      console.log('itemmmmm', item.habitsName);
+                      setNameHabit(item.habitsName);
+                      setIdHabits(item?.id);
+                      setNumberFinsh(item.numberDateExecute);
+                      bottomSheet?.current?.close();
+                    }}
+                    style={[
+                      styles.item,
+                      {
+                        marginTop: index !== 0 ? SIZE[6] : 0,
+                        justifyContent: 'space-between',
+                      },
+                    ]}>
+                    <View>
+                      <Text
+                        style={[
+                          styles.txtHabit,
+                          { fontWeight: '600' },
+                        ]}>{`Habit ${index}: `}</Text>
+                      <Text
+                        style={styles.txtHabit}>{`${item.habitsName}`}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        let tmp = dataHabits.map(_item => {
+                          if (item.id === _item.id) {
+                            return Object.assign({}, item, {
+                              isSelected: !item?.isSelected,
+                            });
+                          } else {
+                            return _item;
+                          }
+                        });
+                        setDataHabits(tmp);
+                      }}>
+                      <Image
+                        style={{ width: 12, height: 12, resizeMode: 'contain' }}
+                        source={
+                          !item.isSelected
+                            ? IMAGE.ic_arrow_right1
+                            : IMAGE.ic_play_down
+                        }
+                      />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                  {item?.isSelected &&
+                    item.habitsContentList.map((_item: any) => {
+                      return (
+                        <View
+                          style={{
+                            paddingHorizontal: 16,
+                            paddingVertical: 16,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginLeft: 16,
+                          }}>
+                          <Image
+                            source={IMAGE.ic_arrow_right1}
+                            style={{
+                              width: 12,
+                              height: 12,
+                              resizeMode: 'contain',
+                            }}
+                          />
+                          <Text style={[styles.txtHabit, { marginLeft: 6 }]}>
+                            {_item.body}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                </View>
+              );
+            }}
+          />
+          {/* {dataHabits?.map((item, index) => {
             return (
               <View>
                 <TouchableOpacity
@@ -475,7 +602,7 @@ const AddHabits = (
                   })}
               </View>
             );
-          })}
+          })} */}
         </ScrollView>
       </BottomSheet>
     </BackgroundApp>

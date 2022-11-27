@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useRef, useState } from 'react';
 import {
   SafeAreaView,
@@ -215,8 +216,10 @@ const Splash = ({ navigation }: MainNavigationProp) => {
       ) : (
         <View style={{ width: '100%', paddingHorizontal: 16 }}>
           <TouchableOpacity
-            onPress={() => {
-              navigation.navigate(MainRoutes.Login);
+            onPress={async () => {
+              await AsyncStorage.setItem('first-use', 'false').then(() => {
+                navigation.navigate(MainRoutes.Login);
+              });
             }}
             style={{
               borderRadius: 8,

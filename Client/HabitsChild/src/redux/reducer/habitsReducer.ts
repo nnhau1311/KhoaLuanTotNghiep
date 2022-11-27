@@ -5,6 +5,7 @@ import {
   DeleteHabitDTO,
   HabitDetailDTO,
   ListHabitsDTO,
+  ListHabitsManagerDTO,
 } from '../../dto';
 import { HttpData } from '../../helpers/apiHelper';
 import {
@@ -246,19 +247,23 @@ export const getListHabitsAction =
       dispatch(habitsSlice.actions.messageHabits(result?.message));
     }
   };
-export const getListHabitsManagerAction = (): AppThunk => async dispatch => {
-  dispatch(habitsSlice.actions.statusHabitsManager(Status.loading));
+export const getListHabitsManagerAction =
+  ({ ...input }: ListHabitsManagerDTO): AppThunk =>
+  async dispatch => {
+    dispatch(habitsSlice.actions.statusHabitsManager(Status.loading));
 
-  const result: HttpData<ListHabitsManager> = await getListHabitsManager();
-  console.log('resultt', result);
-  if (result.error) {
-    dispatch(habitsSlice.actions.statusHabitsManager(Status.error));
-    dispatch(habitsSlice.actions.messageHabitsManager(result?.message));
-  } else {
-    dispatch(habitsSlice.actions.listHabitsManager(result.data));
-    dispatch(habitsSlice.actions.messageHabits(result?.message));
-  }
-};
+    const result: HttpData<ListHabitsManager> = await getListHabitsManager(
+      input,
+    );
+    console.log('resultt', result);
+    if (result.error) {
+      dispatch(habitsSlice.actions.statusHabitsManager(Status.error));
+      dispatch(habitsSlice.actions.messageHabitsManager(result?.message));
+    } else {
+      dispatch(habitsSlice.actions.listHabitsManager(result.data));
+      dispatch(habitsSlice.actions.messageHabits(result?.message));
+    }
+  };
 export const addHabitsAction =
   ({ ...input }: AddHabitsDTO): AppThunk =>
   async dispatch => {
@@ -308,7 +313,7 @@ export const CheckInHabitAction =
   ({ ...input }: CheckInHabitDTO): AppThunk =>
   async dispatch => {
     dispatch(habitsSlice.actions.statusCheckInHabits(Status.loading));
-
+    console.log('inputttttttt', input);
     const result: HttpData<CheckInHabitModel> = await checkInHabitsAPI(input);
     console.log('resultt', result);
     if (result.error) {

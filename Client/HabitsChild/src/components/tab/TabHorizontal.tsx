@@ -1,4 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {
   Text,
   View,
@@ -24,20 +30,20 @@ let tabDefault = [
     status: 0,
   },
   {
+    id: 4,
+    label: 'Chưa thực hiện',
+    value: 'reject',
+    isSelected: false,
+    status: 1,
+  },
+  {
     id: 3,
     label: 'Đã hoàn thành',
     value: 'success',
     isSelected: false,
-    status: 1,
+    status: 100,
   },
 
-  {
-    id: 4,
-    label: 'Đã bỏ lỡ',
-    value: 'reject',
-    isSelected: false,
-    status: 2,
-  },
   // {
   //   id: 5,
   //   label: 'Có chứng từ khác',
@@ -59,13 +65,19 @@ interface TabProps {
   onChangeTab?: Function;
   dataDocument: any;
 }
-const TabHorizontal = (props: TabProps) => {
+const TabHorizontal = forwardRef((props: TabProps, ref) => {
   const { data, onChangeTab, dataDocument } = props;
   const scrollRef = useRef<any>();
   const [listTab, setListTab] = useState(data.length > 0 ? data : tabDefault);
   const [_index, setIndex] = useState(0);
   const [tabSelected, setTabSelected] = useState();
-
+  const resetData = () => {
+    console.log('1111111111111111111');
+    setListTab(tabDefault);
+  };
+  useImperativeHandle(ref, () => ({
+    resetData,
+  }));
   const onChangeStatusEvent = (value?: any) => {
     let list = listTab.map(item => {
       if (item?.id == value?.id) {
@@ -136,7 +148,7 @@ const TabHorizontal = (props: TabProps) => {
       />
     </View>
   );
-};
+});
 
 export default TabHorizontal;
 

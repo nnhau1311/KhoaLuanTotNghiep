@@ -1,7 +1,7 @@
 import { BottomSheet, SIZE } from '@ddc-fis-hcm/react-native-sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import {
   Text,
   View,
@@ -133,9 +133,11 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
   useEffect(() => {
     dispatch(getListHabitsAction({ pageNumber: page }));
   }, [page]);
+  const refTab = useRef<any>();
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       console.log('home');
+      refTab.current?.resetData();
       dispatch(getListHabitsAction({ pageNumber: 0 }));
     });
 
@@ -193,10 +195,18 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
             style={{ width: '100%', height: '100%' }}>
             <View style={{ paddingHorizontal: 16 }}>
               <TabHorizontal
+                ref={refTab}
                 dataDocument={[]}
                 data={[]}
-                onChangeTab={() => {
-                  console.log('tabbbbbbbbbbb', dataHabits);
+                onChangeTab={(item: any) => {
+                  if (item.status === '') {
+                    setDataHabits(result?.Data.content);
+                  } else {
+                    let tmp = result?.Data.content.filter(_item => {
+                      return _item.status === item.status;
+                    });
+                    setDataHabits(tmp);
+                  }
                 }}
               />
             </View>
@@ -213,11 +223,28 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                     <ActivityIndicator size="small" color={COLOR.orange} />
                   ) : null
                 }
+                ListEmptyComponent={
+                  dataHabits.length === 0 ? (
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Image
+                        source={IMAGE.img_nodata}
+                        style={{ height: 200, width: 200 }}
+                      />
+                      <Text style={{ color: '#00000090' }}>
+                        Không có dữ liệu!
+                      </Text>
+                    </View>
+                  ) : null
+                }
                 renderItem={({ item, index }) => {
                   console.log('INDEXHOME', index);
                   return (
                     <TouchableOpacity
-                      key={index.toString() + ''}
+                      key={index + ''}
                       onPress={() => {
                         console.log('idddddddddddd', item.id);
                         navigation.navigate(MainRoutes.HaibitDetail, {
@@ -289,10 +316,10 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
         label={'Thao tác'}
         onClose={() => {}}>
         <View>
-          <TouchableOpacity style={styles.btn} onPress={() => {}}>
+          {/* <TouchableOpacity style={styles.btn} onPress={() => {}}>
             <Image source={IMAGE.ic_edit_home} style={styles.img} />
             <Text style={styles.txt}>Edit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.btn}
             onPress={() => {

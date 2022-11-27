@@ -19,7 +19,7 @@ export async function loginAPI({
   ...input
 }: LoginDTO): Promise<HttpData<LoginModel>> {
   const result = await post('auth/login', input);
-  console.log('resultLoginnnnnnnnnn', result);
+  // console.log('resultLoginnnnnnnnnn', result);
   if (result?.error) {
     return result;
   }
@@ -66,7 +66,7 @@ export async function changePassAPI({
 export async function UpdateInforAPI({
   ...input
 }: UpdateInforDTO): Promise<HttpData<UpdateInforModel>> {
-  const result = await post('user/update-infor/' + userData.userId, input);
+  const result = await post('user/update-infor/', input);
 
   if (result?.error) {
     return result;

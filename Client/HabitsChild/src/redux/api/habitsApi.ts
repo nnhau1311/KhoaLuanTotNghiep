@@ -4,6 +4,7 @@ import {
   DeleteHabitDTO,
   HabitDetailDTO,
   ListHabitsDTO,
+  ListHabitsManagerDTO,
 } from '../../dto';
 import { get, getPage, HttpData, post } from '../../helpers/apiHelper';
 import {
@@ -25,10 +26,10 @@ export async function getListHabits({
   }
   return { data: result?.data as ListHabits };
 }
-export async function getListHabitsManager(): Promise<
-  HttpData<ListHabitsManager>
-> {
-  const result = await get('habits/get-all');
+export async function getListHabitsManager({
+  ...input
+}: ListHabitsManagerDTO): Promise<HttpData<ListHabitsManager>> {
+  const result = await post('habits/get-all', input);
 
   if (result?.error) {
     return result;

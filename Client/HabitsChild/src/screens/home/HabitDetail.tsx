@@ -132,6 +132,7 @@ const HaibitDetail = (
 ) => {
   const [isPopup, setPopup] = useState(false);
   const [listDay, setListDay] = useState<Array<ItemDay>>();
+  const [listDayFinish, setListDayFinish] = useState<Array<ItemDay>>();
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const dispatch = useAppDispatch();
@@ -179,7 +180,11 @@ const HaibitDetail = (
           },
         );
       });
+      let tmpFinish = tmp.filter(item => {
+        return item.status === true;
+      });
       setListDay(tmp);
+      setListDayFinish(tmpFinish);
     } else if (
       statusDetail === Status.success &&
       dataDetail?.StatusCode == '200'
@@ -195,14 +200,16 @@ const HaibitDetail = (
       const data = true;
       const jsonData = JSON.stringify(data);
 
-      await AsyncStorage.setItem('checkin', jsonData);
+      await AsyncStorage.setItem('checkin' + dataDetail?.Data.id, jsonData);
     } catch (e) {
       console.log('setDataLoginError: ', e);
     }
   };
   const getData = async () => {
     try {
-      const jsonData = await AsyncStorage.getItem('checkin');
+      const jsonData = await AsyncStorage.getItem(
+        'checkin' + dataDetail?.Data.id,
+      );
       const data = JSON.parse(jsonData + '');
       console.log('dataCheckInnnnn', data);
       setChecked(data);
@@ -247,8 +254,9 @@ const HaibitDetail = (
       ]);
     }
     if (statusCheckIn === Status.error && messageCheckIn) {
+      dispatch(resetStateCheckInHabit());
       setLoading(false);
-      Alert.alert('Notification', messageCheckIn);
+      Alert.alert('Notification', 'Invalid attendance event');
     }
   }, [statusCheckIn]);
   return (
@@ -258,7 +266,7 @@ const HaibitDetail = (
         iconLeft
         iconRight
         imageLeft={IMAGE.ic_back}
-        imageRight={IMAGE.ic_edit}
+        // imageRight={IMAGE.ic_edit}
         title={'Detail Habits'}
         // styleLeft={{ width: 44, height: 44 }}
         // styleRight={{ width: 44, height: 44 }}
@@ -461,7 +469,7 @@ const HaibitDetail = (
             }}>
             <ItemData
               title="Longest Streak"
-              data="20 DAYS"
+              data={listDay?.length + ' DAYS'}
               source={IMAGE.ic_longday}
               style={{
                 borderRightWidth: 1,
@@ -472,7 +480,7 @@ const HaibitDetail = (
             />
             <ItemData
               title="Current Streak"
-              data="0 DAYS"
+              data={listDayFinish?.length + ' DAYS'}
               source={IMAGE.ic_light}
               style={{
                 borderLeftWidth: 1,
@@ -490,7 +498,7 @@ const HaibitDetail = (
             }}>
             <ItemData
               title="Completion Rate"
-              data="98 %"
+              data={(listDayFinish?.length / listDay?.length).toFixed(2) + ' %'}
               source={IMAGE.ic_completion}
               style={{
                 borderRightWidth: 1,
@@ -501,7 +509,7 @@ const HaibitDetail = (
             />
             <ItemData
               title={'Average Easiness\nScore'}
-              data="7"
+              data={JSON.stringify(listDayFinish?.length * 10)}
               source={IMAGE.ic_score}
               style={{
                 borderLeftWidth: 1,
@@ -520,14 +528,36 @@ const HaibitDetail = (
                 );
               } else {
                 {
+                  let date = new Date();
                   let data = dataDetail?.Data.habitsContents.filter(item => {
+                    console.log(
+                      'startday',
+                      new Date(
+                        moment(item.startDate).format('YYYY-MM-DD'),
+                      ).getTime(),
+                    );
+                    console.log(
+                      ' endday',
+                      moment(item.endDate).format('DD-MM-YYYY'),
+                    );
+                    console.log(' new date', moment(date).format('DD-MM-YYYY'));
+
                     return (
-                      moment(item.startDate).format('DD-MM-YYYY') <=
-                        moment(new Date()).format('DD-MM-YYYY') &&
-                      moment(item.endDate).format('DD-MM-YYYY') >=
-                        moment(new Date()).format('DD-MM-YYYY')
+                      new Date(
+                        moment(item.startDate).format('YYYY-MM-DD'),
+                      ).getTime() <=
+                        new Date(
+                          moment(new Date()).format('YYYY-MM-DD'),
+                        ).getTime() &&
+                      new Date(
+                        moment(item.endDate).format('YYYY-MM-DD'),
+                      ).getTime() >=
+                        new Date(
+                          moment(new Date()).format('YYYY-MM-DD'),
+                        ).getTime()
                     );
                   });
+                  console.log('=============>', data);
                   setLoading(true);
                   dispatch(
                     CheckInHabitAction({
@@ -554,6 +584,18 @@ const HaibitDetail = (
             <Text style={styles.txtMark}>Mark Habit as Complete</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={() => {
+              Alert.alert('Notification', 'Confirm miss habits', [
+                {
+                  text: 'Yes',
+                  onPress: () => {
+                    storeChecked();
+                    navigation.goBack();
+                  },
+                },
+                { text: 'No', onPress: () => {} },
+              ]);
+            }}
             style={[
               styles.btnMark,
               { backgroundColor: 'white', marginTop: 16 },

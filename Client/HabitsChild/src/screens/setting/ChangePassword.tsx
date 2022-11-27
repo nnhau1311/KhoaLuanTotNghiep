@@ -79,7 +79,7 @@ const ChangePassword = (
         isCheck: dataGet?.isCheck,
       };
       const jsonData = JSON.stringify(data);
-
+      await AsyncStorage.setItem('Bio_password', pass);
       await AsyncStorage.setItem('login', jsonData);
     } catch (e) {
       console.log('store_Data_Login_Error', e);
@@ -103,7 +103,7 @@ const ChangePassword = (
         styleLeft={{}}
         styleRight={{}}
       />
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <KeyboardAvoidingView
           style={{
             width: '100%',
@@ -139,7 +139,7 @@ const ChangePassword = (
             onChangeText={(text: string) => {
               setPass(text);
             }}
-            style={{ backgroundColor: '#FFF6ED' }}
+            style={{ backgroundColor: '#FFF6ED', marginTop: 12 }}
             inputStyle={{ color: 'orange' }}
           />
           <TextField

@@ -35,7 +35,7 @@ const Header = (props: HeaderProps) => {
             onPress={() => {
               onPressLeft && onPressLeft();
             }}
-            style={[styles.circle, { backgroundColor: 'transparent' }]}>
+            style={[styles.circle, { backgroundColor: 'rgb(200, 200, 200)' }]}>
             <Image source={imageLeft} style={[STYLES.icon24, styleLeft]} />
           </TouchableOpacity>
         )}

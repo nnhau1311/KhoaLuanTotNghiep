@@ -303,6 +303,10 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_fullname.png'),
     name: '/ic_fullname.png',
   },
+  img_nodata: {
+    path: require('../assets/images/img_nodata.png'),
+    name: '/img_nodata.png',
+  },
   img_child4: {
     path: require('../assets/images/img_child4.png'),
     name: '/img_child4.png',

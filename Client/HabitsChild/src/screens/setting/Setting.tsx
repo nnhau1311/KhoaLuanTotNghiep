@@ -130,7 +130,8 @@ const ItemButton = ({
         // userData.BIOMETRICS = '';
 
         if (Platform.OS == 'android') {
-          if (error.code == 'NOT_ENROLLED') {
+          console.log('first', error.code);
+          if (error.code == 'NOT_AVAILABLE') {
             Alert.alert(
               'Thông báo',
               'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',

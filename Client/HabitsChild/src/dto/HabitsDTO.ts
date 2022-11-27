@@ -5,6 +5,10 @@ export interface AddHabitsDTO {
 export interface ListHabitsDTO {
   pageNumber: number;
 }
+export interface ListHabitsManagerDTO {
+  pageSize: number;
+  pageNumber: number;
+}
 export interface HabitDetailDTO {
   userHabitsId?: number;
 }

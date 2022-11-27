@@ -45,7 +45,7 @@ const fingerConig = {
   sensorErrorDescription: 'Vân tay không đúng',
   cancelText: 'Hủy bỏ',
 };
-const Login = ({ navigation }: MainNavigationProp) => {
+const Login = ({ navigation, route }: MainNavigationProp) => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(state => state.userReducer.status);
   const message = useAppSelector(state => state.userReducer.message);
@@ -186,12 +186,13 @@ const Login = ({ navigation }: MainNavigationProp) => {
               username: await AsyncStorage.getItem('Bio_username'),
               password: await AsyncStorage.getItem('Bio_password'),
             };
-            setUsername(JSON.stringify(dataUser?.username));
-            setPassword(JSON.stringify(dataUser?.password));
+            setUsername(dataUser?.username);
+            setPassword(dataUser?.password);
             if (
               !stringIsEmpty(JSON.stringify(dataUser?.username)) &&
               !stringIsEmpty(JSON.stringify(dataUser?.password))
             ) {
+              setLoading(true);
               dispatch(loginAction(dataUser));
             }
           })
@@ -221,7 +222,7 @@ const Login = ({ navigation }: MainNavigationProp) => {
     try {
       const jsonData = await AsyncStorage.getItem('login');
       const data = JSON.parse(jsonData + '');
-      console.log('data: ', data);
+
       if (data.username && data.password && data?.isCheck) {
         setUsername(data.username);
         setPassword(data.password);
@@ -229,11 +230,9 @@ const Login = ({ navigation }: MainNavigationProp) => {
         setLoading(true);
         setUsername(data?.username);
         setPassword(data?.password);
-        if (!stringIsEmpty(iconBio) && iconBio !== 'false') {
-          onPressBioLogin();
-        } else {
-          dispatch(loginAction(data));
-        }
+
+        console.log('---------2');
+        dispatch(loginAction(data));
       }
     } catch (e) {
       console.log('getDataLoginError: ', e);
@@ -268,22 +267,33 @@ const Login = ({ navigation }: MainNavigationProp) => {
       setLoading(false);
       Alert.alert('Notification', message);
     }
-  }, [status, result, message]);
+  }, [status, message, result]);
   async function getBio() {
     const Bio = await AsyncStorage.getItem('BIO');
     console.log('Bio', Bio);
     setIconBio(Bio);
   }
   useEffect(() => {
-    console.log('object', !stringIsEmpty(iconBio));
     getBio();
-    if (!stringIsEmpty(iconBio) && iconBio !== 'false') {
-      onPressBioLogin();
-    } else {
-      getData();
-    }
+
     // getData();
   }, []);
+  useEffect(() => {
+    console.log('!stringIsEmpty(iconBio)', !stringIsEmpty(iconBio));
+    console.log('iconBio', iconBio);
+    if (iconBio) {
+      if (
+        !stringIsEmpty(iconBio) &&
+        iconBio !== 'false' &&
+        route?.params?.logout !== 'logout'
+      ) {
+        console.log('bioooooooo==========>');
+        onPressBioLogin();
+      } else {
+        getData();
+      }
+    }
+  }, [iconBio]);
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardStatus(true);
