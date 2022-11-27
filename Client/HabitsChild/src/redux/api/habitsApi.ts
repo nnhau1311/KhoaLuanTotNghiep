@@ -59,7 +59,10 @@ export async function detailHabitsAPI({
 export async function deleteHabitsAPI({
   ...input
 }: DeleteHabitDTO): Promise<HttpData<DeleteHabitModel>> {
-  const result = await get('user-habits/delete-habits/' + input.userHabitsId);
+  const result = await post(
+    'user-habits/delete-habits/' + input.userHabitsId,
+    {},
+  );
 
   if (result?.error) {
     return result;

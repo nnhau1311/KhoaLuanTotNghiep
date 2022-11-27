@@ -47,6 +47,7 @@ const ChangePassword = (
   useEffect(() => {
     if (status === Status.success && result?.StatusCode == '200') {
       storeData();
+      setLoading(false);
       Alert.alert('Notification', 'Change Password Success!', [
         {
           text: 'OK',
@@ -181,6 +182,7 @@ const ChangePassword = (
                 refPass.current.showError('Không trùng khớp');
                 refRe.current.showError('Không trùng khớp');
               } else {
+                setLoading(true);
                 dispatch(
                   ChangePassAction({ oldPassword: oldPass, newPassword: pass }),
                 );
