@@ -140,7 +140,7 @@ const TabHorizontal = forwardRef((props: TabProps, ref) => {
                     color: item.isSelected ? COLOR.purple : 'gray',
                   },
                 ]}>
-                {item?.label} ({getTotal(item.value)})
+                {item?.label}
               </Text>
             </TouchableOpacity>
           );

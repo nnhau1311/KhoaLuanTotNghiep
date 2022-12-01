@@ -23,6 +23,7 @@ import {
   CheckInHabitAction,
   getDetailHabitsAction,
   resetStateCheckInHabit,
+  resetStateDetailHabit,
 } from '../../redux/reducer/habitsReducer';
 import { ItemHabit, Status } from '../../models';
 import { MainRoutes } from '../../routes/routes';
@@ -184,6 +185,7 @@ const HaibitDetail = (
         return item.status === true;
       });
       setListDay(tmp);
+      console.log('tmppppppppppp', dataDetail.Data);
       setListDayFinish(tmpFinish);
     } else if (
       statusDetail === Status.success &&
@@ -220,11 +222,12 @@ const HaibitDetail = (
   useEffect(() => {
     if (statusCheckIn === Status.success && dataCheckIn?.StatusCode === '200') {
       setLoading(false);
-      storeChecked();
+
       Alert.alert('Notification', 'Check In Habit Success!', [
         {
           text: 'Ok',
           onPress: () => {
+            storeChecked();
             dispatch(resetStateCheckInHabit());
             dispatch(
               getDetailHabitsAction({
@@ -271,6 +274,7 @@ const HaibitDetail = (
         // styleLeft={{ width: 44, height: 44 }}
         // styleRight={{ width: 44, height: 44 }}
         onPressLeft={() => {
+          dispatch(resetStateDetailHabit());
           navigation.goBack();
         }}
         onPressRight={() => {}}
@@ -316,9 +320,17 @@ const HaibitDetail = (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image source={IMAGE.ic_noti} style={STYLES.icon16} />
               <Text style={styles.txtNote}>
-                {moment(dataDetail?.Data.startDate).format('DD/MM/YYYY') +
+                {moment(
+                  new Date(dataDetail?.Data.startDate).setDate(
+                    new Date(dataDetail?.Data.startDate).getDate() - 1,
+                  ),
+                ).format('DD/MM/YYYY') +
                   ' - ' +
-                  moment(dataDetail?.Data.endDate).format('DD/MM/YYYY')}
+                  moment(
+                    new Date(dataDetail?.Data.endDate).setDate(
+                      new Date(dataDetail?.Data.endDate).getDate() - 1,
+                    ),
+                  ).format('DD/MM/YYYY')}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -558,14 +570,21 @@ const HaibitDetail = (
                     );
                   });
                   console.log('=============>', data);
-                  setLoading(true);
-                  dispatch(
-                    CheckInHabitAction({
-                      habitsId: dataDetail?.Data.habitsId,
-                      userHabitsId: dataDetail?.Data.id,
-                      listHabitsContentCode: [data[0]?.contentCode],
-                    }),
-                  );
+                  if (data[0]?.contentCode) {
+                    setLoading(true);
+                    dispatch(
+                      CheckInHabitAction({
+                        habitsId: dataDetail?.Data.habitsId,
+                        userHabitsId: dataDetail?.Data.id,
+                        listHabitsContentCode: [data[0]?.contentCode],
+                      }),
+                    );
+                  } else {
+                    Alert.alert(
+                      'Notification',
+                      `It's not time to get used to it`,
+                    );
+                  }
                   if (
                     moment(new Date()).format('DD-MM-YYYY') ===
                     dataDetail?.Data.habitsContents[

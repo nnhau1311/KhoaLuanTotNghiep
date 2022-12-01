@@ -213,7 +213,7 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
             <ItemData
               style={{ borderLeftWidth: 1 }}
               title="Task Completed"
-              data="12"
+              data="2"
               image={IMAGE.ic_flag}
             />
           </View>
@@ -304,7 +304,7 @@ const Profile = ({ navigation }: MainNavigationProp, props: ProfileProps) => {
                 color: COLOR.purple,
                 marginLeft: 12,
               }}>
-              20 Days
+              4 Days
             </Text>
             <Image
               source={IMAGE.ic_arrow_right}

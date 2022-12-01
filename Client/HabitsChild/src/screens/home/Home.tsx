@@ -329,7 +329,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
               dispatch(deleteHabitAction({ userHabitsId: itemHabit?.id }));
             }}>
             <Image source={IMAGE.ic_delete_home} style={styles.img} />
-            <Text style={styles.txt}>Delete</Text>
+            <Text style={styles.txt}>Setting</Text>
           </TouchableOpacity>
         </View>
       </BottomSheet>

@@ -206,6 +206,11 @@ export const habitsSlice = createSlice({
     ) => {
       state.statusDetailHabits = action.payload;
     },
+    resetStateDetailHabit: state => {
+      (state.detailHabitsData = undefined),
+        (state.messageDetailHabits = ''),
+        (state.statusDetailHabits = Status.idle);
+    },
     checkInHabit: (
       state: CheckInHabitState,
       action: PayloadAction<CheckInHabitModel | undefined>,
@@ -332,6 +337,9 @@ export const resetStateDeleteHabit = (): AppThunk => async dispatch => {
 };
 export const resetStateCheckInHabit = (): AppThunk => async dispatch => {
   dispatch(habitsSlice.actions.resetStateCheckInHabit());
+};
+export const resetStateDetailHabit = (): AppThunk => async dispatch => {
+  dispatch(habitsSlice.actions.resetStateDetailHabit());
 };
 export const {
   listHabits,

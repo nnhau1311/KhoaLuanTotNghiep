@@ -30,6 +30,7 @@ import {
   resetStateAddHabits,
 } from '../../redux/reducer/habitsReducer';
 import moment from 'moment';
+import Loading from '../../components/loading/Loading';
 
 interface AddHabitsProps {}
 
@@ -104,6 +105,7 @@ const AddHabits = (
       statusAddHabits === Status.success &&
       resultAddHabits?.StatusCode === '200'
     ) {
+      setLoading(false);
       dispatch(resetStateAddHabits());
       Alert.alert('Notification', 'Add new habit success', [
         {
@@ -117,10 +119,12 @@ const AddHabits = (
       statusAddHabits === Status.success &&
       resultAddHabits?.StatusCode !== '200'
     ) {
+      setLoading(false);
       dispatch(resetStateAddHabits());
       Alert.alert('Notification', 'Add new habit error');
     }
     if (statusAddHabits === Status.error && messageAddHabits) {
+      setLoading(false);
       dispatch(resetStateAddHabits());
       Alert.alert('Notification', message);
     }
@@ -144,11 +148,13 @@ const AddHabits = (
       setIsEnd(true);
     }
   };
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     dispatch(getListHabitsManagerAction({ pageNumber: page, pageSize: 10 }));
   }, [page]);
   return (
     <BackgroundApp>
+      {loading && <Loading />}
       <Header
         // imageRight={{}}
         onPressRight={() => {}}
@@ -271,6 +277,7 @@ const AddHabits = (
           /> */}
           <DateTimePicker
             // dateValue={dayjs(new Date())}
+
             dateValue={''}
             label={'Start day'}
             containerStyle={[styles.margin, { width: '48%' }]}
@@ -335,20 +342,32 @@ const AddHabits = (
         </View>
         <TouchableOpacity
           onPress={() => {
-            console.log('dataNewwwwwwww', {
-              habitsId: idHabits,
-              dateStart:
-                moment(fromDate).format().toString().split('T')[0] +
-                'T' +
-                fromTime +
-                '+07:00',
-            });
-            dispatch(
-              addHabitsAction({
-                habitsId: idHabits,
-                dateStart: moment(fromDate).format().toString(),
-              }),
-            );
+            if (!nameHabit || !fromDate || !fromTime) {
+              Alert.alert('Notification', 'Please enter full information');
+            } else {
+              if (new Date(fromDate) <= new Date()) {
+                Alert.alert(
+                  'Notification',
+                  'Start date must be greater than current date!',
+                );
+              } else {
+                console.log('dataNewwwwwwww', {
+                  habitsId: idHabits,
+                  dateStart:
+                    moment(fromDate).format().toString().split('T')[0] +
+                    'T' +
+                    fromTime +
+                    '+07:00',
+                });
+                setLoading(true);
+                dispatch(
+                  addHabitsAction({
+                    habitsId: idHabits,
+                    dateStart: moment(fromDate).format().toString(),
+                  }),
+                );
+              }
+            }
           }}
           style={{
             paddingVertical: 12,

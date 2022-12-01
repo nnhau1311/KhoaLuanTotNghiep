@@ -197,5 +197,5 @@ const ForgotPass = (
 export default ForgotPass;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#E5E5E5', paddingVertical: 24 },
+  container: { flex: 1, backgroundColor: COLOR.bg, paddingVertical: 24 },
 });

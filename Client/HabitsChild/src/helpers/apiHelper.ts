@@ -47,7 +47,7 @@ export async function post(path: string, data: any): Promise<any> {
   } catch (error: any) {
     Logger.error(`API Error: ${error}`);
     console.log('result1213', error.response.data);
-    if (error?.response?.data?.StatusCode >= 500) {
+    if (error?.response?.data?.StatusCode > 500) {
       result.message = STRING.apiError;
       result.error = true;
     } else {

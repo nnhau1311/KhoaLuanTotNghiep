@@ -26,8 +26,13 @@ const About = ({ navigation }: MainNavigationProp, props: AboutProps) => {
       <View style={{ flex: 1, paddingHorizontal: 16 }}>
         <View style={{ alignItems: 'center' }}>
           <Image
-            source={IMAGE.ic_add}
-            style={{ width: 84, height: 84, resizeMode: 'contain' }}
+            source={IMAGE.icon_app}
+            style={{
+              width: 84,
+              height: 84,
+              resizeMode: 'contain',
+              borderRadius: 16,
+            }}
           />
           <Text
             style={{
@@ -36,7 +41,7 @@ const About = ({ navigation }: MainNavigationProp, props: AboutProps) => {
               marginTop: 16,
               color: COLOR.purple,
             }}>
-            HABITS CHILD APP
+            CHILDREN'S HABIT APP
           </Text>
           <Text style={{ fontWeight: '400', fontSize: 18, color: COLOR.gray }}>
             Phiên bản 1.0

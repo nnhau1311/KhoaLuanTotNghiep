@@ -315,6 +315,10 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_video.png'),
     name: '/ic_video.png',
   },
+  icon_app: {
+    path: require('../assets/images/icon_app.png'),
+    name: '/icon_app.png',
+  },
 };
 
 let convertImage: Function = () => {

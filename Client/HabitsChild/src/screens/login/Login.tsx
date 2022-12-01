@@ -260,14 +260,14 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
       setLoading(false);
     } else if (status === Status.success && result?.StatusCode !== '200') {
       setLoading(false);
-      Alert.alert('Notification', result?.message);
+      Alert.alert('Notification', message);
     }
 
     if (status === Status.error && message !== '') {
       setLoading(false);
       Alert.alert('Notification', message);
     }
-  }, [status, message, result]);
+  }, [status]);
   async function getBio() {
     const Bio = await AsyncStorage.getItem('BIO');
     console.log('Bio', Bio);
@@ -292,6 +292,8 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
       } else {
         getData();
       }
+    } else {
+      getData();
     }
   }, [iconBio]);
   useEffect(() => {
