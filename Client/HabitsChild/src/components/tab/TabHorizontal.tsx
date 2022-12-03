@@ -27,14 +27,14 @@ let tabDefault = [
     label: 'Đang thực hiện',
     value: 'inprocess',
     isSelected: false,
-    status: 0,
+    status: 1,
   },
   {
     id: 4,
     label: 'Chưa thực hiện',
     value: 'reject',
     isSelected: false,
-    status: 1,
+    status: 0,
   },
   {
     id: 3,

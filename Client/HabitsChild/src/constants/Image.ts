@@ -319,6 +319,26 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/icon_app.png'),
     name: '/icon_app.png',
   },
+  splash1: {
+    path: require('../assets/images/splash1.png'),
+    name: '/splash1.png',
+  },
+  splash2: {
+    path: require('../assets/images/splash2.png'),
+    name: '/splash2.png',
+  },
+  splash3: {
+    path: require('../assets/images/splash3.png'),
+    name: '/splash3.png',
+  },
+  splash4: {
+    path: require('../assets/images/splash4.png'),
+    name: '/splash4.png',
+  },
+  ic_habit: {
+    path: require('../assets/images/ic_habit.png'),
+    name: '/ic_habit.png',
+  },
 };
 
 let convertImage: Function = () => {

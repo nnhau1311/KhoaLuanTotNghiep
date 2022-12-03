@@ -278,7 +278,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                             backgroundColor: COLOR.bg,
                           }}>
                           <Image
-                            source={IMAGE.ic_book}
+                            source={IMAGE.ic_habit}
                             style={[STYLES.icon24, { tintColor: 'orange' }]}
                           />
                         </View>

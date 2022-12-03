@@ -12,22 +12,30 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import { IMAGE } from '../../constants/Image';
 import { MainRoutes } from '../../routes/routes';
 import { MainNavigationProp } from '../../routes/type';
 
 const images = [
   {
     text: 'WELCOME TO Monumental habits',
-    uri: 'https://i.imgur.com/WrQDLWO.png',
+    // uri: 'https://i.imgur.com/WrQDLWO.png',
+    uri: IMAGE.splash1,
   },
-  { text: 'CREATE NEW HABIT EASILY', uri: 'https://i.imgur.com/IxWXQct.png' },
+  {
+    text: 'CREATE NEW HABIT EASILY',
+    // uri: 'https://i.imgur.com/IxWXQct.png',
+    uri: IMAGE.splash2,
+  },
   {
     text: 'KEEP TRACK OF YOUR PROGRESS',
-    uri: 'https://i.imgur.com/87VBgEf.png',
+    // uri: 'https://i.imgur.com/87VBgEf.png',
+    uri: IMAGE.splash3,
   },
   {
     text: 'JOIN A SUPPORTIVE COMMUNITY',
-    uri: 'https://i.imgur.com/ffsQAGh.png',
+    // uri: 'https://i.imgur.com/ffsQAGh.png',
+    uri: IMAGE.splash4,
   },
 ];
 
@@ -92,7 +100,8 @@ const Splash = ({ navigation }: MainNavigationProp) => {
                     height: Dimensions.get('screen').height * 0.5,
                   }}>
                   <ImageBackground
-                    source={{ uri: image.uri }}
+                    // source={{ uri: image.uri }}
+                    source={image.uri}
                     style={styles.card}
                     imageStyle={{ resizeMode: 'contain' }}>
                     {/* <View style={styles.textContainer}>
