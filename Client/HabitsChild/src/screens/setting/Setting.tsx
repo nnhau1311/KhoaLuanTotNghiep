@@ -34,12 +34,12 @@ const optionalConfigObject = {
 };
 
 const fingerConig = {
-  title: 'Xác thực vân tay',
+  title: 'Fingerprint authentication',
   imageColor: COLOR.purple,
   imageErrorColor: COLOR.red,
-  sensorDescription: 'Chạm vào cảm biến',
-  sensorErrorDescription: 'Vân tay không đúng',
-  cancelText: 'Hủy bỏ',
+  sensorDescription: 'Touch the fingerprint sensor',
+  sensorErrorDescription: 'Fingerprint is not correct',
+  cancelText: 'Cancel',
 };
 interface SettingProps {}
 interface ItemButtonProps {
@@ -137,7 +137,7 @@ const ItemButton = ({
           console.log('first', error.code);
           if (error.code == 'NOT_AVAILABLE') {
             Alert.alert(
-              'Thông báo',
+              'Notification',
               'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
               [
                 {
@@ -155,14 +155,14 @@ const ItemButton = ({
             );
           } else {
             Alert.alert(
-              'Thông báo',
+              'Notification',
               'Điện thoại của bạn không hỗ trợ xác thực vân tay/ khuôn mặt',
             );
           }
         } else {
           if (error.name == 'LAErrorTouchIDNotEnrolled') {
             Alert.alert(
-              'Thông báo',
+              'Notification',
               'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
               [
                 {
@@ -180,7 +180,7 @@ const ItemButton = ({
             );
           } else {
             Alert.alert(
-              'Thông báo',
+              'Notification',
               'Điện thoại của bạn không hỗ trợ xác thực vân tay/ khuôn mặt',
             );
           }

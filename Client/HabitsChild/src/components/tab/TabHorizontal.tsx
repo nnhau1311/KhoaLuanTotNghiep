@@ -11,34 +11,35 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { COLOR, SIZE } from '../../constants';
 
 let tabDefault = [
   {
     id: 1,
-    label: 'Tất cả',
+    label: 'All',
     value: 'all',
     isSelected: true,
     status: '',
   },
   {
     id: 2,
-    label: 'Đang thực hiện',
+    label: 'Processing',
     value: 'inprocess',
     isSelected: false,
     status: 1,
   },
   {
     id: 4,
-    label: 'Chưa thực hiện',
+    label: 'Imperfect',
     value: 'reject',
     isSelected: false,
     status: 0,
   },
   {
     id: 3,
-    label: 'Đã hoàn thành',
+    label: 'Finished',
     value: 'success',
     isSelected: false,
     status: 100,
@@ -122,6 +123,8 @@ const TabHorizontal = forwardRef((props: TabProps, ref) => {
                 paddingHorizontal: SIZE.h24,
                 paddingVertical: SIZE.h10,
                 borderRadius: SIZE.h65,
+                width: Dimensions.get('screen').width / 4,
+                alignItems: 'center',
               }}
               onPress={() => {
                 setIndex(index);

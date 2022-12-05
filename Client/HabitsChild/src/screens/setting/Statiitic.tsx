@@ -18,7 +18,7 @@ const Statitics = (
         iconRight
         imageLeft={IMAGE.ic_back}
         // imageRight={IMAGE.ic_glass}
-        title="Thống kê"
+        title="Statitics"
         // styleLeft={{ width: 44, height: 44 }}
         styleRight={{ width: 44, height: 44 }}
         onPressLeft={() => {

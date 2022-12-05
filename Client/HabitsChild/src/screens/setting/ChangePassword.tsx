@@ -175,12 +175,14 @@ const ChangePassword = (
             onPress={() => {
               //   setLoading(true);
               if (oldPass !== userData.password) {
-                refOld.current.showError('Vui lòng nhập chính xác mật khẩu cũ');
+                refOld.current.showError(
+                  'Please enter the correct information old password',
+                );
               } else if (pass.length < 8) {
-                refPass.current.showError('Vui lòng nhập mật khẩu từ 8 kí tự');
+                refPass.current.showError('Please enter at least 8 characters');
               } else if (rePass !== pass) {
-                refPass.current.showError('Không trùng khớp');
-                refRe.current.showError('Không trùng khớp');
+                refPass.current.showError('Incorrect');
+                refRe.current.showError('Incorrect');
               } else {
                 setLoading(true);
                 dispatch(

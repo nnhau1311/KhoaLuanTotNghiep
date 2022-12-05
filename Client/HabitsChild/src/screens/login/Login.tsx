@@ -38,12 +38,12 @@ const optionalConfigObject = {
   passcodeFallback: false, // if true is passed, itwill allow isSupported to return an error if the device is not enrolled in touch id/face id etc. Otherwise, it will just tell you what method is supported, even if the user is not enrolled.  (default false)
 };
 const fingerConig = {
-  title: 'Xác thực vân tay',
-  imageColor: 'purple',
-  imageErrorColor: 'red',
-  sensorDescription: 'Chạm vào cảm biến',
-  sensorErrorDescription: 'Vân tay không đúng',
-  cancelText: 'Hủy bỏ',
+  title: 'Fingerprint authentication',
+  imageColor: COLOR.purple,
+  imageErrorColor: COLOR.red,
+  sensorDescription: 'Touch the fingerprint sensor',
+  sensorErrorDescription: 'Fingerprint is not correct',
+  cancelText: 'Cancel',
 };
 const Login = ({ navigation, route }: MainNavigationProp) => {
   const dispatch = useAppDispatch();
@@ -64,10 +64,10 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
   };
   const onPressLogin = () => {
     if (username === '') {
-      user.current.showError('Tên đăng nhập không được để trống');
+      user.current.showError('Username cannot be empty');
     }
     if (password === '') {
-      pass.current.showError('Mật khẩu không được để trống');
+      pass.current.showError('Password cannot be empty');
     }
     if (username && password) {
       setLoading(true);
@@ -111,16 +111,16 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
         if (Platform.OS == 'android') {
           if (error.code == 'NOT_ENROLLED') {
             Alert.alert(
-              'Thông báo',
-              'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
+              'Notification',
+              'Your phone does not have fingerprint/face authentication enabled',
               [
                 {
-                  text: 'Đóng',
+                  text: 'Cancel',
                   onPress: () => {},
                   style: 'cancel',
                 },
                 {
-                  text: 'Cài đặt',
+                  text: 'Setting',
                   onPress: () => {
                     openSettings();
                   },
@@ -129,16 +129,16 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
             );
           } else {
             Alert.alert(
-              'Thông báo',
-              'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
+              'Notification',
+              'Your phone does not have fingerprint/face authentication enabled',
               [
                 {
-                  text: 'Đóng',
+                  text: 'Cancel',
                   onPress: () => {},
                   style: 'cancel',
                 },
                 {
-                  text: 'Cài đặt',
+                  text: 'Setting',
                   onPress: () => {
                     openSettings();
                   },
@@ -149,16 +149,16 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
         } else {
           if (error.name == 'LAErrorTouchIDNotEnrolled') {
             Alert.alert(
-              'Thông báo',
-              'Điện thoại của bạn chưa kích hoạt xác thực vân tay/ khuôn mặt',
+              'Notification',
+              'Your phone does not have fingerprint/face authentication enabled',
               [
                 {
-                  text: 'Đóng',
+                  text: 'Cancel',
                   onPress: () => {},
                   style: 'cancel',
                 },
                 {
-                  text: 'Cài đặt',
+                  text: 'Setting',
                   onPress: () => {
                     openSettings();
                   },
@@ -167,8 +167,8 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
             );
           } else {
             Alert.alert(
-              'Thông báo',
-              'Điện thoại của bạn không hỗ trợ xác thực vân tay/ khuôn mặt',
+              'Notification',
+              'Your phone does not have fingerprint/face authentication enabled',
             );
           }
         }
@@ -201,7 +201,7 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
         return false;
       }
     } catch (error) {
-      Alert.alert('Thông báo', 'Nhận diện sinh trắc học thất bại', [{}]);
+      Alert.alert('Notification', 'Biometric identification failed', [{}]);
     }
   };
   const storeData = async () => {

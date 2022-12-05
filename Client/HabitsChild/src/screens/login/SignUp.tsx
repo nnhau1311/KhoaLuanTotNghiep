@@ -80,17 +80,17 @@ const SignUp = ({ navigation }: MainNavigationProp, props: SingUpProps) => {
     pass: string,
   ) => {
     if (!validateFullName(fullName)) {
-      refName.current.showError('Vui lòng nhập đúng thông tin');
+      refName.current.showError('Please enter the correct information');
       return false;
     } else if (!validateEmail(mail)) {
-      refMail.current.showError('Vui lòng nhập đúng định dạng');
+      refMail.current.showError('Please enter the correct format');
       return false;
     } else if (user.length < 6) {
-      refUser.current.showError('Vui lòng nhập tối thiểu 6 kí tự');
+      refUser.current.showError('Please enter at least 6 characters');
       return false;
     }
     if (pass.length < 8) {
-      refPass.current.showError('Vui lòng nhập tối thiểu 8 kí tự');
+      refPass.current.showError('Please enter at least 8 characters');
       return false;
     } else {
       return true;

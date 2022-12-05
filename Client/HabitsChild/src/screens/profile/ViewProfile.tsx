@@ -163,7 +163,7 @@ const ViewProfile = (
                 isIcon={false}
                 isPassword={false}
                 // disabled={true}
-                label={'Họ và tên'}
+                label={'Fullname'}
                 isRequired={false}
                 value={name}
                 onChangeText={(txt: string) => {
@@ -196,7 +196,7 @@ const ViewProfile = (
                 isIcon={false}
                 isPassword={false}
                 disabled={false}
-                label={'Số điện thoại'}
+                label={'Phone'}
                 isRequired={false}
                 style={{ marginTop: 32 }}
                 keyboardType={'numeric'}
@@ -215,7 +215,7 @@ const ViewProfile = (
         <NormalButton
           onPress={() => {
             if (phone.length < 10 || phone.length > 10 || !checkPhone(phone)) {
-              telephone.current.showError('Vui lòng nhập đúng định dạng');
+              telephone.current.showError('Please enter the correct format');
             } else {
               const data: UpdateInforDTO = {
                 userAddress: address,

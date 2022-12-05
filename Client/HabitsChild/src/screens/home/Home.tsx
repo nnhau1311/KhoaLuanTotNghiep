@@ -234,9 +234,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                         source={IMAGE.img_nodata}
                         style={{ height: 200, width: 200 }}
                       />
-                      <Text style={{ color: '#00000090' }}>
-                        Không có dữ liệu!
-                      </Text>
+                      <Text style={{ color: '#00000090' }}>No Data!</Text>
                     </View>
                   ) : null
                 }
@@ -313,7 +311,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
         ref={bottomSheet}
         isShowHeaderRight={false}
         styleLabel={styles.label}
-        label={'Thao tác'}
+        label={'Setting'}
         onClose={() => {}}>
         <View>
           {/* <TouchableOpacity style={styles.btn} onPress={() => {}}>
