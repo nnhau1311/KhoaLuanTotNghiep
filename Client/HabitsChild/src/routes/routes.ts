@@ -17,6 +17,7 @@ export enum MainRoutes {
   Information = 'Information',
   ViewProfile = 'ViewProfile',
   About = 'About',
+  Statitics = 'Statitics',
 }
 
 export type MainStackParamList = {
@@ -40,6 +41,7 @@ export type MainStackParamList = {
   [MainRoutes.Information]: undefined;
   [MainRoutes.About]: undefined;
   [MainRoutes.ViewProfile]: undefined | { dataProfile: any };
+  [MainRoutes.Statitics]: undefined;
 };
 
 export const MainStack = createNativeStackNavigator<MainStackParamList>();

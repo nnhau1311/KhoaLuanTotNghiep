@@ -49,6 +49,8 @@ interface ItemButtonProps {
   style: ViewStyle;
   arrow: boolean;
   onPress: Function;
+  styleIcon?: ViewStyle;
+  viewIcon?: ViewStyle;
 }
 const ItemButton = ({
   title,
@@ -57,6 +59,8 @@ const ItemButton = ({
   style,
   arrow,
   onPress,
+  styleIcon,
+  viewIcon,
 }: ItemButtonProps) => {
   const [isOnBiometrics, setBiometrics] = useState<boolean>(false);
   const toggleSwitch = () => setBiometrics(!isOnBiometrics);
@@ -257,14 +261,21 @@ const ItemButton = ({
         style,
       ]}>
       <View style={styles.viewRow}>
-        <Image
-          source={image}
-          style={{
-            width: 40,
-            height: 40,
-            resizeMode: 'contain',
-          }}
-        />
+        <View style={viewIcon}>
+          <Image
+            source={image}
+            style={[
+              {
+                width: 40,
+                height: 40,
+                resizeMode: 'contain',
+                tintColor: 'orange',
+              },
+              styleIcon,
+            ]}
+          />
+        </View>
+
         <Text
           style={{
             fontWeight: '500',
@@ -472,6 +483,25 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
           }}>
           General
         </Text>
+        <ItemButton
+          onPress={() => {
+            navigation.navigate(MainRoutes.Statitics);
+          }}
+          image={IMAGE.ic_thongke}
+          title={'Thống kê'}
+          switcher={false}
+          styleIcon={{ width: 18, height: 18 }}
+          style={{}}
+          arrow
+          viewIcon={{
+            backgroundColor: 'rgba(253, 167, 88, 0.2)',
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 8,
+          }}
+        />
         <ItemButton
           onPress={() => {}}
           image={IMAGE.ic_face}

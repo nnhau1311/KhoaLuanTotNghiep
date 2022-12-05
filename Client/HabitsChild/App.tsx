@@ -16,6 +16,7 @@ import ViewProfile from './src/screens/profile/ViewProfile';
 import { NetworkInfo } from 'react-native-network-info';
 import About from './src/screens/setting/About';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Statitics from './src/screens/setting/Statiitic';
 const App = () => {
   const getIPAddress = () => {
     NetworkInfo.getIPV4Address().then(ip => {
@@ -61,7 +62,7 @@ const App = () => {
       {!objectIsNull(initialScreen) && (
         <NavigationContainer>
           <StatusBar animated={true} backgroundColor={COLOR.bg} hidden={true} />
-          <MainStack.Navigator initialRouteName={setinitialRouteName()}>
+          <MainStack.Navigator initialRouteName={MainRoutes.TabNavigation}>
             <>
               <MainStack.Screen
                 name={MainRoutes.Splash}
@@ -74,6 +75,14 @@ const App = () => {
               <MainStack.Screen
                 name={MainRoutes.SignUp}
                 component={SignUp}
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+              <MainStack.Screen
+                name={MainRoutes.Statitics}
+                component={Statitics}
                 options={{
                   headerShown: false,
                   animation: 'slide_from_right',

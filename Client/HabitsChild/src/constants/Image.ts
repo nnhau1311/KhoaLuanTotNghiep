@@ -339,6 +339,10 @@ let IMAGE: IMAGEProps = {
     path: require('../assets/images/ic_habit.png'),
     name: '/ic_habit.png',
   },
+  ic_thongke: {
+    path: require('../assets/images/ic_thongke.png'),
+    name: '/ic_thongke.png',
+  },
 };
 
 let convertImage: Function = () => {
