@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
   Image,
+  ScrollView,
 } from 'react-native';
 import Header from '../../components/header/Header';
 import { COLOR } from '../../constants';
@@ -16,6 +17,10 @@ import { IMAGE } from '../../constants/Image';
 import { MainNavigationProp } from '../../routes/type';
 import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import { STYLES } from '../../constants/Style';
+import { DATACOURSE } from './Course';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { setIndexCourse } from '../../redux/reducer/courseReducer';
 
 interface ViewCourseProps {}
 
@@ -23,26 +28,74 @@ const ViewCourse = (
   { route, navigation }: MainNavigationProp,
   props: ViewCourseProps,
 ) => {
-  const [idVideo, setIdVideo] = useState(route.params?.data.listVideo[0].url);
-  const [data, setData] = useState(route.params?.data.listVideo);
+  const _index = route.params?.data;
+  const dispatch = useAppDispatch();
+  const [idVideo, setIdVideo] = useState(DATACOURSE[_index].listVideo[0].url);
+  // const [valueIndex, setValueIndex] = useState(0);
+  const valueIndex = useAppSelector(state => state.courseReducer.index);
+  const [data, setData] = useState(DATACOURSE[_index].listVideo);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    console.log('valueIndexxxxxxx', valueIndex);
+  }, [valueIndex]);
   const onStateChange = useCallback(state => {
-    console.log('stateeeeeeee', state);
+    console.log('stateeeeeeee', state, valueIndex);
     if (state === 'ended') {
       setPlaying(false);
-      Alert.alert('Video has finished playing!');
+      const _data = data.map((item, _i) => {
+        if (valueIndex + 1 === _i) {
+          console.log('111111111w2222', valueIndex + 1, 'ssssssss', _i);
+          return Object.assign({}, item, { isView: true });
+        } else {
+          return item;
+        }
+      });
+      console.log('dataaaaaaaaaaa', _data);
+      setData(_data);
+      setDataCourse();
+      // Alert.alert('Video has finished playing!');
     }
   }, []);
   useEffect(() => {
-    console.log('dataaaaa', route.params?.data);
+    getDataCourse();
   }, []);
+  const setDataCourse = async () => {
+    try {
+      const _data = data.map((item, _i) => {
+        if (valueIndex + 1 === _i) {
+          console.log('111111111', valueIndex + 1, 'ssssssss', _i);
+          return Object.assign({}, item, { isView: true });
+        } else {
+          return item;
+        }
+      });
+      const jsonValue = JSON.stringify(_data);
+      console.log('_dtaaaaaaaaa', _data);
+      await AsyncStorage.setItem('course' + _index, jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  const getDataCourse = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('course' + _index);
+      console.log('jsonnnnnnn Value', jsonValue);
+      if (jsonValue) {
+        setData(JSON.parse(jsonValue));
+      }
+    } catch (e) {
+      // error reading value
+      console.log(' // error reading value');
+    }
+  };
   return (
     <View style={styles.container}>
       <Header
         iconLeft
         imageLeft={IMAGE.ic_back}
-        title={route.params?.data.title}
+        title={DATACOURSE[_index].title}
         // styleLeft={{ width: 44, height: 44 }}
         styleRight={{ width: 44, height: 44 }}
         onPressLeft={() => {
@@ -50,7 +103,6 @@ const ViewCourse = (
         }}
       />
       <View style={{ flex: 1 }}>
-        <StatusBar barStyle={'dark-content'} hidden={true} />
         {loading && (
           <View style={[styles.container]}>
             <ActivityIndicator size="large" color="orange" />
@@ -68,15 +120,17 @@ const ViewCourse = (
             console.log('readyyyyyyyyyy');
           }}
         />
-        <View
-          style={{
-            borderRadius: 12,
-            backgroundColor: 'white',
-            paddingVertical: 16,
-            paddingHorizontal: 16,
-            marginHorizontal: 16,
-          }}>
-          <Text
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View
+            style={{
+              borderRadius: 12,
+              backgroundColor: 'white',
+              paddingVertical: 16,
+              paddingHorizontal: 16,
+              marginHorizontal: 16,
+              marginBottom: 48,
+            }}>
+            {/* <Text
             style={{
               color: COLOR.purple,
               fontSize: 18,
@@ -85,15 +139,18 @@ const ViewCourse = (
               paddingBottom: 16,
             }}>
             {route.params.data.title}
-          </Text>
-          <FlatList
+          </Text> */}
+            {/* <FlatList
             data={data}
             keyExtractor={item => {
               item.id;
             }}
-            renderItem={({ item, index }) => {
+            renderItem={({ item, index }) => { */}
+            {data.map((item: any, index: number) => {
               return (
                 <TouchableOpacity
+                  disabled={!item?.isView}
+                  key={index + ''}
                   style={{
                     paddingVertical: 12,
                     width: '100%',
@@ -105,10 +162,16 @@ const ViewCourse = (
                     alignItems: 'center',
                   }}
                   onPress={() => {
+                    console.log('indexxxxxxx', index);
+
                     setIdVideo(item.url);
                     setPlaying(true);
+                    dispatch(setIndexCourse({ index: index }));
                   }}>
-                  <Image source={IMAGE.ic_play} style={STYLES.icon38} />
+                  <Image
+                    source={item?.isView ? IMAGE.ic_play : IMAGE.ic_locked}
+                    style={STYLES.icon38}
+                  />
 
                   <Text
                     numberOfLines={1}
@@ -120,13 +183,15 @@ const ViewCourse = (
                       color: COLOR.purple,
                       marginLeft: 12,
                     }}>
-                    {index + 1 + '. ' + item.title}
+                    {index + 1 + '. ' + item?.title}
                   </Text>
                 </TouchableOpacity>
               );
-            }}
-          />
-        </View>
+            })}
+
+            {/* /> */}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );

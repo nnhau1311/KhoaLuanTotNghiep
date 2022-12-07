@@ -123,7 +123,7 @@ const TabHorizontal = forwardRef((props: TabProps, ref) => {
                 paddingHorizontal: SIZE.h24,
                 paddingVertical: SIZE.h10,
                 borderRadius: SIZE.h65,
-                width: Dimensions.get('screen').width / 4,
+                // width: Dimensions.get('screen').width / 4,
                 alignItems: 'center',
               }}
               onPress={() => {

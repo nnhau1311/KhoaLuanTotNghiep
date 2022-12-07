@@ -148,7 +148,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
       {loading && <Loading />}
       <Header
         onPressLeft={() => {
-          bottomSheet.current.open();
+          // bottomSheet.current.open();
         }}
         onPressRight={() => {
           navigation.navigate(MainRoutes.Information);
@@ -224,7 +224,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                   ) : null
                 }
                 ListEmptyComponent={
-                  dataHabits.length === 0 ? (
+                  !dataHabits || dataHabits.length === 0 ? (
                     <View
                       style={{
                         alignItems: 'center',
@@ -234,7 +234,14 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
                         source={IMAGE.img_nodata}
                         style={{ height: 200, width: 200 }}
                       />
-                      <Text style={{ color: '#00000090' }}>No Data!</Text>
+                      <Text
+                        style={{
+                          color: COLOR.black,
+                          fontSize: 16,
+                          fontWeight: '400',
+                        }}>
+                        No Data!
+                      </Text>
                     </View>
                   ) : null
                 }
@@ -327,7 +334,7 @@ const Home = ({ navigation }: MainNavigationProp, props: HomeProps) => {
               dispatch(deleteHabitAction({ userHabitsId: itemHabit?.id }));
             }}>
             <Image source={IMAGE.ic_delete_home} style={styles.img} />
-            <Text style={styles.txt}>Setting</Text>
+            <Text style={styles.txt}>Delete</Text>
           </TouchableOpacity>
         </View>
       </BottomSheet>

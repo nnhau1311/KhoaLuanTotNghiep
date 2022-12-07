@@ -1,4 +1,5 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import courseReducer from './reducer/courseReducer';
 import habitsReducer from './reducer/habitsReducer';
 import userReducer from './reducer/userReducer';
 // import categoryReducer from './reducers/categorySlice';
@@ -9,6 +10,7 @@ export const store = configureStore({
   reducer: {
     userReducer: userReducer,
     habitsReducer: habitsReducer,
+    courseReducer: courseReducer,
     // category: categoryReducer,
     // news: newsReducer,
     // report: reportReducer,

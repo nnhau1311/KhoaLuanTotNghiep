@@ -17,6 +17,7 @@ import { NetworkInfo } from 'react-native-network-info';
 import About from './src/screens/setting/About';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Statitics from './src/screens/setting/Statiitic';
+import WebView from './src/screens/course/WebViewDoc';
 const App = () => {
   const getIPAddress = () => {
     NetworkInfo.getIPV4Address().then(ip => {
@@ -61,12 +62,24 @@ const App = () => {
     <>
       {!objectIsNull(initialScreen) && (
         <NavigationContainer>
-          <StatusBar animated={true} backgroundColor={COLOR.bg} hidden={true} />
-          <MainStack.Navigator initialRouteName={MainRoutes.TabNavigation}>
+          <StatusBar
+            animated={true}
+            backgroundColor={'transparent'}
+            hidden={false}
+          />
+          <MainStack.Navigator initialRouteName={setinitialRouteName()}>
             <>
               <MainStack.Screen
                 name={MainRoutes.Splash}
                 component={Splash}
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+              <MainStack.Screen
+                name={MainRoutes.WebView}
+                component={WebView}
                 options={{
                   headerShown: false,
                   animation: 'slide_from_right',

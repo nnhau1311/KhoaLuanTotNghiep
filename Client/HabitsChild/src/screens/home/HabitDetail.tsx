@@ -540,43 +540,53 @@ const HaibitDetail = (
                 );
               } else {
                 {
-                  let date = new Date();
-                  let data = dataDetail?.Data.habitsContents.filter(item => {
-                    console.log(
-                      'startday',
-                      new Date(
-                        moment(item.startDate).format('YYYY-MM-DD'),
-                      ).getTime(),
-                    );
-                    console.log(
-                      ' endday',
-                      moment(item.endDate).format('DD-MM-YYYY'),
-                    );
-                    console.log(' new date', moment(date).format('DD-MM-YYYY'));
+                  // console.log(
+                  //   '11111111111',
+                  //   new Date(
+                  //     moment(
+                  //       dataDetail?.Data.habitsContents[0].startDate,
+                  //     ).format('YYYY-MM-DD'),
+                  //   ).getTime(),
+                  // );
+                  // console.log(
+                  //   '2222222',
+                  //   new Date(
+                  //     moment(dataDetail?.Data.habitsContents[0].endDate).format(
+                  //       'YYYY-MM-DD',
+                  //     ),
+                  //   ).getTime(),
+                  // );
+                  // console.log(
+                  //   '3333333',
+                  //   new Date(moment(new Date()).format('YYYY-MM-DD')).getTime(),
+                  // );
 
-                    return (
+                  if (
+                    new Date(
+                      moment(
+                        dataDetail?.Data.habitsContents[0].startDate,
+                      ).format('YYYY-MM-DD'),
+                    ).getTime() <=
                       new Date(
-                        moment(item.startDate).format('YYYY-MM-DD'),
-                      ).getTime() <=
-                        new Date(
-                          moment(new Date()).format('YYYY-MM-DD'),
-                        ).getTime() &&
+                        moment(new Date()).format('YYYY-MM-DD'),
+                      ).getTime() &&
+                    new Date(
+                      moment(dataDetail?.Data.habitsContents[0].endDate).format(
+                        'YYYY-MM-DD',
+                      ),
+                    ).getTime() >=
                       new Date(
-                        moment(item.endDate).format('YYYY-MM-DD'),
-                      ).getTime() >=
-                        new Date(
-                          moment(new Date()).format('YYYY-MM-DD'),
-                        ).getTime()
-                    );
-                  });
-                  console.log('=============>', data);
-                  if (data[0]?.contentCode) {
+                        moment(new Date()).format('YYYY-MM-DD'),
+                      ).getTime()
+                  ) {
                     setLoading(true);
                     dispatch(
                       CheckInHabitAction({
                         habitsId: dataDetail?.Data.habitsId,
                         userHabitsId: dataDetail?.Data.id,
-                        listHabitsContentCode: [data[0]?.contentCode],
+                        listHabitsContentCode: [
+                          dataDetail?.Data.habitsContents[0].contentCode,
+                        ],
                       }),
                     );
                   } else {

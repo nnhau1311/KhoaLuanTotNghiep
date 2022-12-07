@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import { COLOR } from '../../constants';
 import { STYLES } from '../../constants/Style';
 
@@ -28,7 +35,7 @@ const Header = (props: HeaderProps) => {
     onPressRight,
   } = props;
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: StatusBar.currentHeight }]}>
       <View style={{ width: '20%', justifyContent: 'center' }}>
         {iconLeft && (
           <TouchableOpacity

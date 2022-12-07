@@ -292,9 +292,10 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
       } else {
         getData();
       }
-    } else {
-      getData();
     }
+    // else {
+    //   getData();
+    // }
   }, [iconBio]);
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {

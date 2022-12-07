@@ -250,11 +250,11 @@ const AddHabits = (
           }}>
           <DateTimePicker
             // dateValue={dayjs(new Date())}
+
             dateValue={''}
             label={'Start time'}
-            containerStyle={[styles.margin, { width: '48%' }]}
+            containerStyle={[styles.margin, { width: '48%', marginBottom: 64 }]}
             onDateChange={(value: any) => {
-              console.log('vlueeê', value);
               setFromTime(value?.dateString);
             }}
             mode="time"
@@ -266,15 +266,6 @@ const AddHabits = (
             justifyContent: 'space-between',
             alignItems: 'flex-end',
           }}>
-          {/* <DateTimePicker
-            // dateValue={dayjs(new Date())}
-            dateValue={toDate}
-            label={'Last day'}
-            containerStyle={[styles.margin, { width: '48%' }]}
-            onDateChange={(value: any) => {
-              // setFromDate(value?.value);
-            }}
-          /> */}
           <DateTimePicker
             // dateValue={dayjs(new Date())}
 

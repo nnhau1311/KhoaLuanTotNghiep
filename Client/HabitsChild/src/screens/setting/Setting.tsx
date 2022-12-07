@@ -488,7 +488,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
             navigation.navigate(MainRoutes.Statitics);
           }}
           image={IMAGE.ic_thongke}
-          title={'Thống kê'}
+          title={'Smart challenge'}
           switcher={false}
           styleIcon={{ width: 18, height: 18 }}
           style={{}}
@@ -544,6 +544,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
         </Text>
         <ItemButton
           image={IMAGE.ic_about}
+          styleIcon={{ tintColor: undefined }}
           title={'Contact'}
           switcher={false}
           style={{}}
@@ -554,6 +555,7 @@ const Setting = ({ navigation }: MainNavigationProp, props: SettingProps) => {
         />
         <ItemButton
           image={IMAGE.ic_contact}
+          styleIcon={{ tintColor: undefined }}
           title={'About'}
           switcher={false}
           style={{ marginBottom: 16 }}
