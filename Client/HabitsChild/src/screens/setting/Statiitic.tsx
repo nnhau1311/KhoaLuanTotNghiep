@@ -229,7 +229,7 @@ const Statitics = (
                 borderRadius: 12,
                 justifyContent: 'center',
                 alignItems: 'center',
-                marginHorizontal: 64,
+                marginHorizontal: 32,
               }}>
               <Text
                 style={{
