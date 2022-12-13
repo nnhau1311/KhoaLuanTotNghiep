@@ -267,7 +267,7 @@ const Login = ({ navigation, route }: MainNavigationProp) => {
       setLoading(false);
       Alert.alert('Notification', message);
     }
-  }, [status]);
+  }, [status, message, result]);
   async function getBio() {
     const Bio = await AsyncStorage.getItem('BIO');
     console.log('Bio', Bio);
